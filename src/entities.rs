@@ -87,7 +87,7 @@ pub struct Collection {
 }
 
 pub trait CollectionTrait {
-    fn insert(&self, id: &str, embeddings: Vec<f32>); 
+    fn insert(&mut self, id: &str, embeddings: Vec<f32>); 
     fn get(&self, id: &str) -> Option<&Record>;
     fn delete(&mut self, id: &str) -> bool;
     fn update(&mut self, id: &str, embeddings: Vec<f32>);
@@ -133,6 +133,9 @@ pub trait EngineTrait {
 
     // Takes a reference to lookup a value
     fn get_collection(&self, name: &str) -> Result<&Collection, CollectionError>;
+
+    // Takes a mutable reference to lookup a mutable value
+    fn get_collection_mut(&mut self, name: &str) -> Result<&mut Collection, CollectionError>;
 
     // Takes a mutable reference to remove a value
     fn delete_collection(&mut self, name: &str) -> Result<(), CollectionError>;

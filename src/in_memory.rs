@@ -35,25 +35,22 @@ impl EngineTrait for Engine {
     }
 
     fn get_collection(&self, name: &str) -> Result<&Collection, CollectionError> {
-        let collection = self.collections.get(name); // Returns Option<&Collection>
-        if collection.is_none() {
-            Err(CollectionError::CollectionNotFound(name.to_string()))
-        } else {
-            Ok(collection.unwrap())
-        }
+        self.collections
+        .get(name)
+        .ok_or_else(|| CollectionError::CollectionNotFound(name.to_string()))
+    }
+
+    fn get_collection_mut(&mut self, name: &str) -> Result<&mut Collection, CollectionError> {
+        self.collections
+        .get_mut(name)
+        .ok_or_else(|| CollectionError::CollectionNotFound(name.to_string()))
     }
 
     fn delete_collection(&mut self, name: &str) -> Result<(), CollectionError> {
-        if !self.check_collection_found(name) {
-            Err(CollectionError::CollectionNotFound(name.to_string()))  
-        } else {
-            let deleted = self.collections.remove(name);
-            if deleted.is_none() {
-                Err(CollectionError::CollectionDeleteFailed(name.to_string()))
-            } else {
-                Ok(())
-            }
-        }
+        self.collections
+        .remove(name)
+        .map(|_| ())  // Maps the removed Collection to ()
+        .ok_or_else(|| CollectionError::CollectionDeleteFailed(name.to_string()))
     }
 }
 
