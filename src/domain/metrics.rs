@@ -1,4 +1,4 @@
-use crate::entities::DistanceMetric;
+use crate::domain::entities::DistanceMetric;
 
 // ------------------------------ Cosine Distance ------------------------------
 

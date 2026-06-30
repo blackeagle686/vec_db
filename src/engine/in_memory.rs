@@ -1,6 +1,5 @@
-use crate::entities::{Collection, Engine, EngineTrait, EngineError, Record, CollectionError, RecordError, CollectionTrait};
+use crate::domain::entities::{Collection, Engine, EngineTrait, EngineError, CollectionError};
 use std::collections::HashMap;
-use serde::{Serialize, Deserialize};
 use bincode;
 use std::fs; 
 

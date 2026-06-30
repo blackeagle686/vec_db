@@ -1,4 +1,4 @@
-use crate::entities::Record;
+use crate::domain::entities::Record;
 
 pub trait SearchAlgo {
     fn insert(&mut self, record: Record);

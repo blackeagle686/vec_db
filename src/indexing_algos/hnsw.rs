@@ -1,5 +1,5 @@
-use crate::entities::{Collection, Record, DistanceMetric};
-use crate::search_teq::SearchAlgo; 
+use crate::domain::entities::{Collection, Record, DistanceMetric};
+use crate::indexing_algos::search_teq::SearchAlgo; 
 use std::marker::PhantomData;
 use rand::Rng;
 

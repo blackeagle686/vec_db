@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
-use rand::Rng; 
 
 #[derive(Error, Debug)]
 pub enum CollectionError{

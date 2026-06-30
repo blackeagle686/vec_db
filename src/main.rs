@@ -1,11 +1,12 @@
-pub mod entities;
-pub mod metrics;
-pub mod in_memory;
-pub mod search_teq;    
-pub mod hnsw;
+pub mod domain;
+pub mod api;
+pub mod indexing_algos;
+pub mod engine;
 
-use entities::{Engine, EngineTrait};
 
-fn main() {
-    let mut engine = Engine::new("engine1");
+#[tokio::main]
+async fn main() {
+
+    
+
 }
