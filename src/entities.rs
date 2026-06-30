@@ -61,6 +61,9 @@ pub enum EngineError{
 
     #[error("Failed to load engine from disk")]
     EngineLoadFailed(String),
+
+    #[error("Save Path Not Found to load from")]
+    EngineLoadFilePathNotFound(String),
 }
 
 // ------------------------------ RECORD ------------------------------
@@ -151,7 +154,7 @@ pub trait EngineTrait {
 
     fn save_to_disk(&self) -> Result<(), EngineError>;
 
-    fn load_from_disk(&mut self) -> Result<Self, EngineError> where Self: Sized;
+    fn load_from_disk(path: &str) -> Result<Self, EngineError> where Self: Sized;
 
 }   
 

@@ -30,12 +30,12 @@ impl EngineTrait for Engine {
     fn create_collection(&mut self, name: &str) -> Result<(), CollectionError> {
         // Inserts a placeholder Collection if it doesn't exist
         if self.check_collection_found(name) {
-            Err(CollectionError::CollectionAlreadyExists(name.to_string()))
-        } else {
-            let collection = Collection::new(name);
-            self.collections.insert(name.to_string(), collection);
-            Ok(())
+            return Err(CollectionError::CollectionAlreadyExists(name.to_string()));
         }
+
+        let collection = Collection::new(name);
+        self.collections.insert(name.to_string(), collection);
+        Ok(())
     }
 
     fn get_collection(&self, name: &str) -> Result<&Collection, CollectionError> {
@@ -65,8 +65,11 @@ impl EngineTrait for Engine {
         .map_err(|e| EngineError::EngineSaveFailed(e.to_string()))
     }
 
-    fn load_from_disk(&mut self ) -> Result<Self, EngineError> {
-        let path = self.save_path.as_ref().ok_or_else(|| EngineError::EngineLoadFailed("Save path not set".to_string()))?;
+    fn load_from_disk(path: &str) -> Result<Self, EngineError> {
+        if path.is_empty() {
+            return Err(EngineError::EngineLoadFilePathNotFound("Save path not set".to_string()));
+        }
+        
         let bytes = fs::read(path)
         .map_err(|e| EngineError::EngineLoadFailed(e.to_string()))?;
 
