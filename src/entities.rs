@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use thiserror::Error;
+use serde::{Serialize, Deserialize};
 
 
 #[derive(Error, Debug)]
@@ -54,11 +55,17 @@ pub enum EngineError{
 
     #[error("Failed to update engine with id {0}")]
     EngineUpdateFailed(String),
+
+    #[error("Failed to save engine to disk")]
+    EngineSaveFailed(String),
+
+    #[error("Failed to load engine from disk")]
+    EngineLoadFailed(String),
 }
 
 // ------------------------------ RECORD ------------------------------
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Record {
     pub id: String,
     pub embeddings: Vec<f32>,
@@ -79,6 +86,7 @@ impl Record {
 
 // ------------------------------ COLLECTION ------------------------------
 
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Collection {
     pub name: String,
     pub vectors: HashMap<String, Record>,
@@ -106,10 +114,11 @@ impl Collection {
 }
 
 // ------------------------------ ENGINE ------------------------------
-
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Engine {
     pub id: String,
     pub collections: HashMap<String, Collection>,  
+    pub save_path: Option<String>,
 }   
 
 impl Engine {
@@ -139,6 +148,11 @@ pub trait EngineTrait {
 
     // Takes a mutable reference to remove a value
     fn delete_collection(&mut self, name: &str) -> Result<(), CollectionError>;
+
+    fn save_to_disk(&self) -> Result<(), EngineError>;
+
+    fn load_from_disk(&mut self) -> Result<Self, EngineError> where Self: Sized;
+
 }   
 
 // ------------------------------ METRICS ------------------------------

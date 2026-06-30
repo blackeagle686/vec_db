@@ -1,5 +1,8 @@
 use crate::entities::{Collection, Engine, EngineTrait, EngineError, CollectionError};
 use std::collections::HashMap;
+use serde::{Serialize, Deserialize};
+use bincode;
+use std::fs; 
 
 
 
@@ -9,6 +12,7 @@ impl EngineTrait for Engine {
         Engine {   
             id: id.to_string(),
             collections: HashMap::new(),
+            save_path: None,  
         }
     }
 
@@ -51,6 +55,23 @@ impl EngineTrait for Engine {
         .remove(name)
         .map(|_| ())  // Maps the removed Collection to ()
         .ok_or_else(|| CollectionError::CollectionDeleteFailed(name.to_string()))
+    }
+
+    fn save_to_disk(&self) -> Result<(), EngineError> {
+        let path = self.save_path.as_ref().ok_or_else(|| EngineError::EngineSaveFailed("Save path not set".to_string()))?;
+        let bytes = bincode::serialize(&self)
+        .map_err(|e| EngineError::EngineSaveFailed(e.to_string()))?;
+        fs::write(path, &bytes)
+        .map_err(|e| EngineError::EngineSaveFailed(e.to_string()))
+    }
+
+    fn load_from_disk(&mut self ) -> Result<Self, EngineError> {
+        let path = self.save_path.as_ref().ok_or_else(|| EngineError::EngineLoadFailed("Save path not set".to_string()))?;
+        let bytes = fs::read(path)
+        .map_err(|e| EngineError::EngineLoadFailed(e.to_string()))?;
+
+        bincode::deserialize(&bytes)
+        .map_err(|e| EngineError::EngineLoadFailed(e.to_string()))
     }
 }
 
