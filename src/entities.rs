@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
-
+use rand::Rng; 
 
 #[derive(Error, Debug)]
 pub enum CollectionError{
@@ -71,9 +71,10 @@ pub enum EngineError{
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Record {
     pub id: String,
+    pub mapped_id: usize, 
     pub embeddings: Vec<f32>,
     pub metadata: Option<HashMap<String, String>>,
-    pub layers: Vec<Vec<String>>, 
+    pub layers: Vec<Vec<usize>>, 
 }
 
 impl Record {
@@ -81,6 +82,7 @@ impl Record {
         Record {
             id,
             embeddings,
+            mapped_id: 0, // Placeholder, will be updated when inserted into collection
             metadata,
             layers: vec![vec![]; max_layer + 1],
         }
@@ -92,16 +94,18 @@ impl Record {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Collection {
     pub name: String,
-    pub vectors: HashMap<String, Record>,
-    pub entry_point: Option<String>,
+    pub vectors: Vec<Record>,
+    pub id_map: HashMap<String, usize>,
+    pub entry_point: Option<usize>,
     pub max_layer: usize,
+    pub next_id: usize,
 }
 
 pub trait CollectionTrait {
-    fn insert(&mut self, id: &str, embeddings: Vec<f32>); 
-    fn get(&self, id: &str) -> Option<&Record>;
-    fn delete(&mut self, id: &str) -> bool;
-    fn update(&mut self, id: &str, embeddings: Vec<f32>);
+    fn insert(&mut self, id: &str, embeddings: Vec<f32>, max_layer: usize, metadata: Option<HashMap<String, String>>) -> Result<(), RecordError>; 
+    fn get(&self, id: &str) -> Result<&Record, RecordError>;
+    fn delete(&mut self, id: &str) -> Result<(), RecordError>;
+    fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>;
 }
 
 
@@ -109,9 +113,11 @@ impl Collection {
     pub fn new(name: &str) -> Self {
         Collection {
             name: name.to_string(),
-            vectors: HashMap::new(),
+            vectors: Vec::new(),
+            id_map: HashMap::new(),
             entry_point: None,
             max_layer: 0,
+            next_id: 0,
         }
     }
 }

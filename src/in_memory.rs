@@ -1,9 +1,8 @@
-use crate::entities::{Collection, Engine, EngineTrait, EngineError, CollectionError};
+use crate::entities::{Collection, Engine, EngineTrait, EngineError, Record, CollectionError, RecordError, CollectionTrait};
 use std::collections::HashMap;
 use serde::{Serialize, Deserialize};
 use bincode;
 use std::fs; 
-
 
 
 impl EngineTrait for Engine {
