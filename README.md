@@ -18,7 +18,7 @@ VecDB is a highly optimized vector database engine built entirely from scratch i
 
 By mapping user string IDs to sequential internal integers, VecDB ensures that its **Hierarchical Navigable Small World (HNSW)** graph traversal operates entirely within contiguous memory blocks (`Vec<Record>`), guaranteeing maximal CPU cache-locality and zero heap-allocations during the hot loop.
 
-## 💎 Core Features
+## 🌌 Core Features
 
 - **Blazing Fast HNSW Architecture**: Navigates multi-layered undirected graphs for highly optimized sub-linear search complexity.
 - **Cache-Optimized Memory Layout**: Converts String IDs into sequential `usize` indices internally, allowing for $O(1)$ memory access during graph jumps. No `String` cloning in the search path.
@@ -26,7 +26,7 @@ By mapping user string IDs to sequential internal integers, VecDB ensures that i
 - **Durable Persistence**: Native `bincode` binary serialization via `serde` ensures the database state is safely saved and loaded from disk in milliseconds.
 - **Strict Error Handling**: Full integration with `thiserror` for deterministic, robust error domains (`EngineError`, `CollectionError`).
 
-## 🏗️ System Architecture
+## 🌌 System Architecture
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#20B2AA', 'primaryBorderColor': '#008080', 'lineColor': '#20B2AA', 'tertiaryColor': '#E0F2F1'}}}%%
@@ -50,7 +50,7 @@ graph TD
     end
 ```
 
-## 🚀 Quick Start
+## 🌌 Quick Start
 
 ```rust
 use vec_db::entities::{Engine, EngineTrait, CollectionTrait};
@@ -77,7 +77,7 @@ fn main() {
 }
 ```
 
-## 🗺️ Development Roadmap
+## 🌌 Development Roadmap
 
 - ✅ **Phase 1: Foundation**: Core structs, static distance metrics, HNSW index foundation, custom error handling.
 - ✅ **Phase 2: Persistence**: Disk persistence via `serde` and `bincode` to save and load the `Engine` state across restarts.
