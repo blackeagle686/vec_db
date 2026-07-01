@@ -82,7 +82,7 @@ fn main() {
 - ✅ **Phase 1: Foundation**: Core structs, static distance metrics, HNSW index foundation, custom error handling.
 - ✅ **Phase 2: Persistence**: Disk persistence via `serde` and `bincode` to save and load the `Engine` state across restarts.
 - ✅ **Phase 3: Performance Optimization**: Refactored internal graph traversal to use sequential integer mapping and contiguous memory `Vec<Record>`, eliminating heap allocations in the hot path.
-- 🚧 **Phase 4: Concurrency & API**: Wrapping the engine in `Arc<RwLock>` and exposing async HTTP endpoints using `tokio` and `axum`.
+- ✅ **Phase 4: Concurrency & API**: Wrapping the engine in `Arc<RwLock>` and exposing async HTTP endpoints using `tokio` and `axum`.
 
 ## 📜 License
 

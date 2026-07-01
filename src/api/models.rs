@@ -7,6 +7,12 @@ pub struct CreateEngineRequest {
     pub id: String,
 }
 
+#[derive(Serialize, Deserialize, Clone)]
+pub struct DefaultSuccessCreationResponse{
+    pub success: bool,
+    pub message: String,
+}
+
 #[derive(Serialize, Deserialize)]
 pub struct CreateCollectionRequest {
     pub engine_id: String,
