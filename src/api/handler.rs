@@ -9,9 +9,7 @@ use crate::domain::entities::{CollectionError, Engine, EngineTrait};
 use crate::api::models::*;
 use crate::api::routers::AppState;
 
-pub struct EngineHandler{
-    pub engine: Arc<RwLock<Engine>>
-}
+pub struct EngineHandler{}
 
 impl EngineHandler {
     pub async fn create_collection(
