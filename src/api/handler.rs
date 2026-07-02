@@ -21,7 +21,7 @@ impl EngineHandler {
     }
 
     pub async fn create_collection(
-        &mut self,
+        State(state): State<AppState>,
         Json(payload): Json<CreateCollectionRequest>,
     )-> Result<Json<DefaultSuccessCreationResponse>, CollectionError> 
     {
