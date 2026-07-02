@@ -12,7 +12,7 @@ use axum::{
 }; 
 use std::sync::{Arc, RwLock}; 
 use tokio::net::TcpListener; 
-use domain::
+use domain::entities::
 
 
 #[tokio::main]
