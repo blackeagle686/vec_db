@@ -24,6 +24,7 @@ impl EngineHandler {
         Json(payload): Json<CreateCollectionRequest>,
     )-> Result<Json<DefaultSuccessCreationResponse>, CollectionError> 
     {
+        
         let mut engine = self.engine.write().unwrap();
         match engine.create_collection(&payload.collection_name.to_string(), Some(&payload.index_type)) {
             Ok(_) => Ok(Json(DefaultSuccessCreationResponse {
