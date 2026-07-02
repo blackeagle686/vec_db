@@ -10,6 +10,6 @@ use crate::domain::entities::Engine;
 
 #[derive(Clone)]
 pub struct AppState{
-    
+    pub engine: Arc<RwLock<dyn Engine + Send + Sync>>,
 }
 
