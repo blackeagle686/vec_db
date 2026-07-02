@@ -2,8 +2,6 @@ use std::collections::HashMap;
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 
-use crate::indexing_algos::indexing::{self, Indexing, IndexingFactory};
-
 #[derive(Error, Debug)]
 pub enum CollectionError{
     #[error("Collection with name {0} already exists")]
@@ -110,7 +108,7 @@ pub struct Collection {
 }
 
 pub trait CollectionTrait {
-    fn insert(&mut self, embeddings: Vec<f32>, max_layer: usize, metadata: Option<HashMap<String, String>>) -> Result<(), RecordError>; 
+    fn insert(&mut self, id: &str, embeddings: Vec<f32>, max_layer: usize, metadata: Option<HashMap<String, String>>) -> Result<(), RecordError>; 
     fn get(&self, id: &str) -> Result<&Record, RecordError>;
     fn delete(&mut self, id: &str) -> Result<(), RecordError>;
     fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>;
@@ -138,7 +136,6 @@ pub struct Engine {
     pub id: String,
     pub collections: HashMap<String, Collection>,  
     pub save_path: Option<String>,
-    pub indexing_factory: IndexingFactory,
 }   
 
 impl Engine {
@@ -180,9 +177,3 @@ pub trait EngineTrait {
 pub trait DistanceMetric {
     fn calculate(a: &[f32], b: &[f32]) -> f32;
 }
-
-// ------------------------------ INDEXING ------------------------------
-
-pub struct Indexing{
-    
-} 

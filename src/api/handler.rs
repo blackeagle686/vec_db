@@ -5,7 +5,7 @@ use axum::{
 };
 use std::sync::{Arc, RwLock};
 
-use crate::domain::entities::{Engine, CollectionError};
+use crate::domain::entities::{CollectionError, Engine, EngineTrait};
 use crate::api::models::*; 
 
 pub struct EngineHandler{
@@ -25,10 +25,10 @@ impl EngineHandler {
     )-> Result<Json<DefaultSuccessCreationResponse>, CollectionError> 
     {
         let mut engine = self.engine.write().unwrap();
-        match engine.create_collection(payload.id) {
+        match engine.create_collection(&payload.collection_name.to_string(), Some(&payload.index_type)) {
             Ok(_) => Ok(Json(DefaultSuccessCreationResponse {
                 success: true,
-                message: format!("Collection with name {} created successfully", payload.id),
+                message: format!("Collection with name {} created successfully", payload.collection_name),
             })),
             Err(e) => Err(e),
         }

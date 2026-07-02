@@ -1,33 +1,47 @@
-use crate::{domain::entities::{Collection, CollectionError, CollectionTrait, Engine, EngineError, EngineTrait, RecordError}, indexing_algos::hnsw};
+use crate::{domain::{entities::{Collection, CollectionError, CollectionTrait, Engine, EngineError, EngineTrait, Record, RecordError}, metrics::CosineDistance}, indexing_algos::{hnsw::HnswIndex, indexing::Indexing}};
 use std::collections::HashMap;
 use bincode;
 use std::fs; 
-use crate::indexing_algos::indexing::IndexingFactory;
 
 impl CollectionTrait for Collection{
     fn insert(
-        mut self,
+        &mut self, // MUST be &mut self, not mut self
+        id: &str,  // You forgot the ID parameter!
         embeddings: Vec<f32>,
         max_layer: usize,
         metadata: Option<HashMap<String, String>>
-    ) -> Result<(), RecordError>{
-        let mut record = Record::new(embeddings, max_layer, metadata);
-        indexing_factory.insert(self.indexing_type, record)
+    ) -> Result<(), RecordError> {
+        let record = Record::new(id.to_string(), embeddings, metadata, max_layer);
+        
+        // On-the-fly Strategy Pattern!
+        match self.indexing_type.to_uppercase().as_str() {
+            "HNSW" => {
+                let mut index = HnswIndex::<CosineDistance>::new(self);
+                index.insert(record);
+            },
+            _ => return Err(RecordError::IndexingTypeNotFound(self.indexing_type.clone())),
+        }
+        
+        Ok(())
     }
-    fn get(&self, id: &str) -> Result<&Record, RecordError>{}
-    fn delete(&mut self, id: &str) -> Result<(), RecordError>{}
-    fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>{}
+    fn get(&self, id: &str) -> Result<&Record, RecordError>{
+        unimplemented!("get is not implemented yet");
+    }
+    fn delete(&mut self, id: &str) -> Result<(), RecordError>{
+        unimplemented!("delete is not implemented yet");
+    }
+    fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>{
+        unimplemented!("update is not implemented yet");
+    }
 }
 
 impl EngineTrait for Engine {
     // Creates and returns a new Engine instance
     fn new(id: &str) -> Self {
-        let mut indexing_factory = IndexingFactory::new();
         Engine {   
             id: id.to_string(),
             collections: HashMap::new(),
             save_path: None,  
-            indexing_factory: indexing_factory,
         }
     }
 
@@ -42,14 +56,12 @@ impl EngineTrait for Engine {
         Ok(())
     }
 
-    fn create_collection(&mut self, name: &str, indexing: Option<&str>) -> Result<(), CollectionError> {
-        // Inserts a placeholder Collection if it doesn't exist
+    fn create_collection(&mut self, name: &str, index_type: Option<&str>) -> Result<(), CollectionError> {
         if self.check_collection_found(name) {
             return Err(CollectionError::CollectionAlreadyExists(name.to_string()));
         }
-        let indexing_type = indexing_type.unwrap_or("hnsw");
-        self.indexing_factory.register(indexing_type, Box::new(hnsw::HnswIndex::new()));
-        let collection = Collection::new(name);
+        // Just pass the string into the new Collection!
+        let collection = Collection::new(name, index_type);
         self.collections.insert(name.to_string(), collection);
         Ok(())
     }
