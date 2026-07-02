@@ -56,6 +56,7 @@ impl EngineTrait for Engine {
         Ok(())
     }
 
+    
     fn create_collection(&mut self, name: &str, index_type: Option<&str>) -> Result<(), CollectionError> {
         if self.check_collection_found(name) {
             return Err(CollectionError::CollectionAlreadyExists(name.to_string()));
