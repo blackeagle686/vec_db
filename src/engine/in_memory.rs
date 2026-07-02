@@ -60,6 +60,7 @@ impl EngineTrait for Engine {
         if self.check_collection_found(name) {
             return Err(CollectionError::CollectionAlreadyExists(name.to_string()));
         }
+        
         // Just pass the string into the new Collection!
         let collection = Collection::new(name, index_type);
         self.collections.insert(name.to_string(), collection);
