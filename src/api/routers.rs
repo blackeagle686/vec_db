@@ -25,7 +25,8 @@ impl App {
             engine: Arc::new(RwLock::new(engine)),
         };
         let app = Router::new()
-            .route("/collection", post(create_collection))
+            .route("/collection", post(create_collection)), 
+            
             .with_state(app_state);
         Self { app, app_state }
     }
