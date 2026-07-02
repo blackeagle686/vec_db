@@ -14,12 +14,6 @@ pub struct EngineHandler{
 }
 
 impl EngineHandler {
-    pub fn new(engine: Engine) -> Self {
-        EngineHandler { 
-            engine: Arc::new(RwLock::new(engine)) 
-        }   
-    }
-
     pub async fn create_collection(
         State(state): State<AppState>,
         Json(payload): Json<CreateCollectionRequest>,
