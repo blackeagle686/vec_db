@@ -6,9 +6,10 @@ use axum::{
 }; 
 use std::sync::{Arc, RwLock}; 
 use tokio::net::TcpListener; 
-use domain::entities::Engine; 
+use crate::domain::entities::Engine; 
 
-let struct AppState{
+#[derive(Clone)]
+pub struct AppState{
     
 }
 
