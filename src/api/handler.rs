@@ -6,7 +6,7 @@ use axum::{
 use std::sync::{Arc, RwLock};
 
 use crate::domain::entities::{CollectionError, Engine, EngineTrait};
-use crate::api::models::*; 
+use crate::api::models::*;
 
 pub struct EngineHandler{
     pub engine: Arc<RwLock<Engine>>
