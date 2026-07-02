@@ -28,8 +28,7 @@ impl EngineHandler {
     }
 }
 
-pub struct CollectionHandler{
+pub struct CollectionHandler{}
 
-}
-
+p
 
