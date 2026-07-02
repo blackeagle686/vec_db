@@ -14,7 +14,8 @@ pub struct AppState{
 }
 
 pub struct App{
-    
+    pub app: Router,
+    pub 
 }
 
 
