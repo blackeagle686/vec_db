@@ -26,7 +26,8 @@ impl App {
         };
         let app = Router::new()
             .route("/collection", post(create_collection))
-            .route("/collection/id")
+            .route("/collection/:id", get(get_collection))
+            .route("/collection/:id", delete(delete_collection))
             .with_state(app_state);
         Self { app, app_state }
     }
