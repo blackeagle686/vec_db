@@ -27,7 +27,8 @@ impl App {
         let app = Router::new()
             .route("/collection", post(create_collection))
             .route("/collection/:id", get(get_collection))
-            .route("/insert", post(insert_))
+            .route("/insert", post(insert_record))
+            .route("/search", post(search_knn))
             .with_state(app_state);
         Self { app, app_state }
     }
