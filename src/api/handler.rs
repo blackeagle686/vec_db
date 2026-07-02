@@ -18,7 +18,7 @@ impl EngineHandler {
     )-> Result<Json<DefaultSuccessCreationResponse>, CollectionError> 
     {
         
-        match engine.create_collection(&payload.collection_name.to_string(), Some(&payload.index_type)) {
+        match state.engine.create_collection(&payload.collection_name.to_string(), Some(&payload.index_type)) {
             Ok(_) => Ok(Json(DefaultSuccessCreationResponse {
                 success: true,
                 message: format!("Collection with name {} created successfully", payload.collection_name),
