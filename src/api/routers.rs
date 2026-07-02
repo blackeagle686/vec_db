@@ -15,7 +15,19 @@ pub struct AppState{
 
 pub struct App{
     pub app: Router,
-    pub 
+    pub app_state: AppState,
+}
+
+impl App {
+    pub fn new(engine: Engine) -> Self {
+        let app_state = AppState {
+            engine: Arc::new(RwLock::new(engine)),
+        };
+        let app = Router::new()
+            .route("/collection", post(create_collection))
+            .with_state(app_state);
+        Self { app, app_state }
+    }
 }
 
 
