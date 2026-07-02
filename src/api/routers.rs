@@ -28,7 +28,7 @@ impl App {
             .route("/collection", post(create_collection))
             .route("/collection/:id", get(get_collection))
             .route("/insert", post(insert_record))
-            .route("/search", post(search_knn))
+            .route("/search", post(search_records))
             .with_state(app_state);
         Self { app, app_state }
     }
