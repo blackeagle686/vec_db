@@ -27,7 +27,7 @@ impl App {
         let app = Router::new()
             .route("/collection", post(create_collection))
             .route("/collection/:id", get(get_collection))
-            .route("/insert/collection/")
+            .route("/insert", post(insert_vector))
             .with_state(app_state);
         Self { app, app_state }
     }
