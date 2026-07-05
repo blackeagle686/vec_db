@@ -11,6 +11,7 @@ impl CollectionTrait for Collection{
         max_layer: usize,
         metadata: Option<HashMap<String, String>>
     ) -> Result<(), RecordError> {
+        let mut id = self.generate_vector_id();
         let record = Record::new(id.to_string(), embeddings, metadata, max_layer);
         
         // On-the-fly Strategy Pattern!
