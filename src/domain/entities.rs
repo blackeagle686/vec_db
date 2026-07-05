@@ -109,7 +109,7 @@ pub struct Collection {
 
 pub trait CollectionTrait {
     fn insert(&mut self, embeddings: Vec<f32>, max_layer: usize, metadata: Option<HashMap<String, String>>) -> Result<(), RecordError>; 
-    fn query(&self, query_vector: Vec<f32>) -> Result<Option<(String, f32)>, RecordError>;
+    fn query(&self, query_vector: Vec<f32>, collection: &mut Collection) -> Result<Option<(String, f32)>, RecordError>;
     fn get(&self, id: &str) -> Result<&Record, RecordError>;
     fn delete(&mut self, id: &str) -> Result<(), RecordError>;
     fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>;
