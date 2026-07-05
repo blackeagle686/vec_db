@@ -28,13 +28,11 @@ pub struct DeleteCollectionRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct GetCollectionRequest {
-    pub engine_name: String,
     pub collection_name: String,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct UpdateCollectionRequest {
-    pub engine_name: String,
     pub collection_name: String,
     pub record: Record,
 }
