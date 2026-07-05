@@ -83,5 +83,6 @@ pub async fn query_vector_handler(
     Ok(Json(CollectionQueryResponse {
         vector_id: res.unwrap().0,
         distance: res.unwrap().1,
+        record: Some(record), 
     }))
 }
