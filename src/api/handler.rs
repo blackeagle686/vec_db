@@ -76,5 +76,6 @@ pub async fn query_vector_handler(
     State(state): State<AppState>, 
     Json(payload): Json<CollectionQueryRequest>
 ) -> Result<Json<CollectionQueryResponse>, (StatusCode, String) >{
+    let mut engine = state.engine.write().unwrap();
     
 }
