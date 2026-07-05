@@ -75,4 +75,6 @@ pub async fn insert_record_handler(
 pub async fn query_vector_handler(
     State(state): State<AppState>, 
     Json(payload): Json<CollectionQueryRequest
-) -> Result<>
+) -> Result<CollectionQueryResponse>{
+    
+}
