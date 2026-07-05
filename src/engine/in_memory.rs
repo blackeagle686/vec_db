@@ -5,13 +5,13 @@ use std::fs;
 
 impl CollectionTrait for Collection{
     fn insert(
-        &mut self, // MUST be &mut self, not mut self
+        &mut self,
         embeddings: Vec<f32>,
         max_layer: usize,
         metadata: Option<HashMap<String, String>>
     ) -> Result<(), RecordError> {
-        let mut id = self.generate_vector_id();
-        let record = Record::new(id.to_string(), embeddings, metadata, max_layer);
+        let id = format!("vec_{}", self.vectors.len());
+        let record = Record::new(id, embeddings, metadata, max_layer);
         
         // On-the-fly Strategy Pattern!
         match self.indexing_type.to_uppercase().as_str() {
@@ -37,14 +37,8 @@ impl CollectionTrait for Collection{
     fn delete(&mut self, id: &str) -> Result<(), RecordError>{
         unimplemented!("delete is not implemented yet");
     }
-    fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>{
+    fn update(&mut self, _id: &str, _embeddings: Vec<f32>) -> Result<(), RecordError>{
         unimplemented!("update is not implemented yet");
-    }
-
-    fn generate_vector_id(&mut self) -> String{
-        let id = self.next_id;
-        self.next_id += 1;
-        id.to_string()
     }
 }
 

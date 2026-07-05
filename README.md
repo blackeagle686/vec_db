@@ -1,6 +1,8 @@
 <div align="center">
   
-# 🌌 VecDB Engine
+<h1 align="center" style="background: linear-gradient(to right, #20B2AA, #008080); -webkit-background-clip: text; color: transparent;">
+  VecDB Engine
+</h1>
 
 [![Rust](https://img.shields.io/badge/Built_with-Rust-20B2AA.svg?style=for-the-badge&logo=rust)]()
 [![Index](https://img.shields.io/badge/Index-HNSW-20B2AA.svg?style=for-the-badge)]()
@@ -8,30 +10,29 @@
 
 **A high-performance, structurally modular Vector Database Engine.**
 
+<hr style="border: 1px solid #20B2AA; width: 50%;" />
 </div>
 
----
-
-## ⚡ Overview
+## Overview
 
 VecDB is a highly optimized vector database engine built entirely from scratch in Rust. Designed with strict systems architecture principles, it focuses on memory efficiency, zero-cost abstractions, and blazing-fast approximate nearest neighbor (ANN) search capabilities.
 
 By mapping user string IDs to sequential internal integers, VecDB ensures that its **Hierarchical Navigable Small World (HNSW)** graph traversal operates entirely within contiguous memory blocks (`Vec<Record>`), guaranteeing maximal CPU cache-locality and zero heap-allocations during the hot loop.
 
-## 🌌 Core Features
+## Core Features
 
 - **Blazing Fast HNSW Architecture**: Navigates multi-layered undirected graphs for highly optimized sub-linear search complexity.
-- **Cache-Optimized Memory Layout**: Converts String IDs into sequential `usize` indices internally, allowing for $O(1)$ memory access during graph jumps. No `String` cloning in the search path.
+- **Cache-Optimized Memory Layout**: Converts String IDs into sequential `usize` indices internally, allowing for O(1) memory access during graph jumps. No `String` cloning in the search path.
 - **Zero-Cost Distance Metrics**: Built around static trait dispatch (`PhantomData` and generics). Distance operations (Cosine, Euclidean) are perfectly inlined by the compiler.
+- **High-Concurrency API**: The engine is wrapped in an `Arc<RwLock>` and served via a lightning-fast `axum` and `tokio` network layer, allowing for massive concurrent read operations.
 - **Durable Persistence**: Native `bincode` binary serialization via `serde` ensures the database state is safely saved and loaded from disk in milliseconds.
-- **Strict Error Handling**: Full integration with `thiserror` for deterministic, robust error domains (`EngineError`, `CollectionError`).
 
-## 🌌 System Architecture
+## System Architecture
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#20B2AA', 'primaryBorderColor': '#008080', 'lineColor': '#20B2AA', 'tertiaryColor': '#E0F2F1'}}}%%
 graph TD
-    A[Client Request] -->|Insert / Search| B(Engine)
+    A[Client Request] -->|REST API via Axum| B(Engine Arc RwLock)
     
     subgraph Core Engine
         B -->|Owns Multiple| C{Collection}
@@ -50,40 +51,50 @@ graph TD
     end
 ```
 
-## 🌌 Quick Start
+## Quick Start (Network API)
 
-```rust
-use vec_db::entities::{Engine, EngineTrait, CollectionTrait};
-use vec_db::metrics::CosineDistance;
-use vec_db::hnsw::HnswIndex;
+The engine now runs as a standalone HTTP server on port 3000. Here is how to interact with it:
 
-fn main() {
-    // 1. Initialize a new engine or load from disk
-    let mut engine = Engine::new("production_engine");
-    
-    // 2. Create a vector collection
-    engine.create_collection("document_embeddings").unwrap();
-    
-    // 3. Borrow the collection to interact with the HNSW Index
-    let mut collection = engine.get_collection_mut("document_embeddings").unwrap();
-    let mut index = HnswIndex::<CosineDistance>::new(&mut collection);
-    
-    // 4. Insert records (User string IDs are internally mapped to usize)
-    // index.insert(record);
-    
-    // 5. Save state
-    engine.save_path = Some("vdb_data.bin".to_string());
-    engine.save_to_disk().unwrap();
-}
+### 1. Start the Server
+```bash
+cargo run --release
 ```
 
-## 🌌 Development Roadmap
+### 2. Create a Collection
+```bash
+curl -X POST http://localhost:3000/collection \
+  -H "Content-Type: application/json" \
+  -d '{"collection_name": "documents", "index_type": "HNSW"}'
+```
 
-- ✅ **Phase 1: Foundation**: Core structs, static distance metrics, HNSW index foundation, custom error handling.
-- ✅ **Phase 2: Persistence**: Disk persistence via `serde` and `bincode` to save and load the `Engine` state across restarts.
-- ✅ **Phase 3: Performance Optimization**: Refactored internal graph traversal to use sequential integer mapping and contiguous memory `Vec<Record>`, eliminating heap allocations in the hot path.
-- ✅ **Phase 4: Concurrency & API**: Wrapping the engine in `Arc<RwLock>` and exposing async HTTP endpoints using `tokio` and `axum`.
+### 3. Insert a Record
+```bash
+curl -X POST http://localhost:3000/insert \
+  -H "Content-Type: application/json" \
+  -d '{
+    "collection_name": "documents",
+    "embeddings": [0.12, 0.45, 0.89],
+    "max_layer": 0
+  }'
+```
 
-## 📜 License
+### 4. Query Vectors
+```bash
+curl -X POST http://localhost:3000/query \
+  -H "Content-Type: application/json" \
+  -d '{
+    "collection_name": "documents",
+    "vector": [0.10, 0.40, 0.90]
+  }'
+```
+
+## Development Roadmap
+
+- **[COMPLETED] Phase 1: Foundation**: Core structs, static distance metrics, HNSW index foundation, custom error handling.
+- **[COMPLETED] Phase 2: Persistence**: Disk persistence via `serde` and `bincode` to save and load the `Engine` state across restarts.
+- **[COMPLETED] Phase 3: Performance Optimization**: Refactored internal graph traversal to use sequential integer mapping and contiguous memory `Vec<Record>`, eliminating heap allocations in the hot path.
+- **[COMPLETED] Phase 4: Concurrency & API**: Wrapping the engine in `Arc<RwLock>` and exposing async HTTP endpoints using `tokio` and `axum`.
+
+## License
 
 This project is licensed under the MIT License.

@@ -26,7 +26,7 @@ impl App {
         };
         let app = Router::new()
             .route("/collection", post(create_collection_handler))
-            .route("/collection/:id", get(get_collection_handler))
+            .route("/collection", get(get_collection_handler))
             .route("/insert", post(insert_record_handler))
             .route("/query", post(query_vector_handler))
             .with_state(app_state.clone());
