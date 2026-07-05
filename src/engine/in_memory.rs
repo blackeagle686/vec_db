@@ -33,7 +33,12 @@ impl CollectionTrait for Collection{
     fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>{
         unimplemented!("update is not implemented yet");
     }
-    
+
+    fn generate_vector_id(&mut self) -> String{
+        let id = self.next_id;
+        self.next_id += 1;
+        id.to_string()
+    }
 }
 
 impl EngineTrait for Engine {
