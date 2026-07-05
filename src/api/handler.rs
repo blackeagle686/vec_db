@@ -72,4 +72,6 @@ pub async fn insert_record_handler(
     }))
 }
 
-pub async fn quer
+pub async fn query_vector_handler(
+    State(AppState { engine })
+)
