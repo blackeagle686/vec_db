@@ -22,7 +22,6 @@ pub struct CreateCollectionRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct DeleteCollectionRequest {
-    pub engine_name: String,
     pub collection_name: String,
 }
 
@@ -39,14 +38,12 @@ pub struct UpdateCollectionRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct InsertRecordRequest{
-    pub engine_name: String,
     pub collection_name: String,
     pub record: Record,
 }
 
 #[derive(Serialize, Deserialize)]
 pub struct CollectionSearchRequest {
-    pub engine_name: String,
     pub collection_name: String,
     pub query_vector: Vec<f32>,
     pub top_k: Option<usize>,
