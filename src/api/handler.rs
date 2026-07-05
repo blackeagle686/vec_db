@@ -28,7 +28,7 @@ pub async fn create_collection_handler(
 
 pub async fn get_collection_handler(
     State(state): State<AppState>, 
-    Json(payload): Json<CreateCollectionRequest>,
+    Json(payload): Json<GetCollectionRequest>,
 ) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)> {
     
     // 1. We want to CREATE a collection, so we need a WRITE lock!
