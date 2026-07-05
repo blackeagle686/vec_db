@@ -112,6 +112,7 @@ pub trait CollectionTrait {
     fn get(&self, id: &str) -> Result<&Record, RecordError>;
     fn delete(&mut self, id: &str) -> Result<(), RecordError>;
     fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>;
+    fn generate_
 }
 
 
