@@ -55,5 +55,5 @@ pub struct CollectionQueryRequest {
 pub struct CollectionQueryResponse {
     pub vector_id: String,
     pub distance: f32,
-    pub record: Record,
+    pub record: Option<Record>,
 }
