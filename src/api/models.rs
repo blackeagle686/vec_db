@@ -51,3 +51,8 @@ pub struct CollectionQueryRequest {
     pub query_vector: Vec<f32>,
     pub top_k: Option<usize>,
 }
+
+pub struct CollectionQueryResponse {
+    pub id: String,
+    pub distance: f32,
+}
