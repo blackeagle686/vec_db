@@ -46,7 +46,7 @@ pub struct InsertRecordRequest{
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct CollectionSearchRequest {
+pub struct CollectionQueryRequest {
     pub collection_name: String,
     pub query_vector: Vec<f32>,
     pub top_k: Option<usize>,
