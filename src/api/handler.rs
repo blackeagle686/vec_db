@@ -26,7 +26,7 @@ pub async fn create_collection_handler(
     }
 }
 
-pub async fn create_collection_handler(
+pub async fn get_collection_handler(
     State(state): State<AppState>, 
     Json(payload): Json<CreateCollectionRequest>,
 ) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)> {
