@@ -79,10 +79,9 @@ pub async fn query_vector_handler(
     let mut engine = state.engine.write().unwrap();
     let collection = engine.get_collection_mut(&payload.collection_name).unwrap();
     let res = collection.query(payload.query_vector).unwrap();
-    let record = ; 
     Ok(Json(CollectionQueryResponse {
         vector_id: res.unwrap().0,
         distance: res.unwrap().1,
-        record: Some(record.clone()), 
+        record: Some(collection.get(&res.unwrap().0).unwrap()), 
     }))
 }
