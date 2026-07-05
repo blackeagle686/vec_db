@@ -53,6 +53,6 @@ pub struct CollectionQueryRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct CollectionQueryResponse {
-    pub res: ()
+    pub res: Option<(String, f32)>,
     pub record: Option<Record>,
 }
