@@ -52,6 +52,7 @@ pub struct CollectionQueryRequest {
     pub top_k: Option<usize>,
 }
 
+#[derive(Serialize, Deserialize)]
 pub struct CollectionQueryResponse {
     pub id: String,
     pub distance: f32,
