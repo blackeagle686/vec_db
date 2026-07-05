@@ -38,7 +38,8 @@ pub struct UpdateCollectionRequest {
 #[derive(Serialize, Deserialize)]
 pub struct InsertRecordRequest{
     pub collection_name: String,
-    pub embeddings: 
+    pub embeddings: Vec<f32>, 
+    pub max
 }
 
 #[derive(Serialize, Deserialize)]
