@@ -62,9 +62,4 @@ pub async fn insert_record_handler(
         success: true,
         message: format!("Record inserted successfully"),
     }))
-
-    
-
-
-    
 }
