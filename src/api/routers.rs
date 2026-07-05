@@ -25,11 +25,11 @@ impl App {
             engine: Arc::new(RwLock::new(engine)),
         };
         let app = Router::new()
-            .route("/collection", post(create_collection))
-            .route("/collection/:id", get(get_collection))
-            .route("/insert", post(insert_record))
-            .route("/search", post(search_records))
-            .with_state(app_state);
+            .route("/collection", post(create_collection_handler))
+            // .route("/collection/:id", get(get_collection))
+            // .route("/insert", post(insert_record))
+            // .route("/search", post(search_records))
+            .with_state(app_state.clone());
         Self { app, app_state }
     }
 }

@@ -40,10 +40,10 @@ pub struct UpdateCollectionRequest {
 }
 
 #[derive(Serialize, Deserialize)]
-pub struct CollectionInsertRequest{
+pub struct CreateRecordRequest{
     pub engine_name: String,
     pub collection_name: String,
-    pub records: Vec<Record>,
+    pub record: Record,
 }
 
 #[derive(Serialize, Deserialize)]
