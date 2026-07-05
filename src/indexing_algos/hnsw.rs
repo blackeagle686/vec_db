@@ -1,4 +1,4 @@
-use crate::domain::entities::{Collection, Record, DistanceMetric};
+use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError};
 use crate::indexing_algos::indexing::Indexing; 
 use std::marker::PhantomData;
 use rand::Rng;
@@ -52,7 +52,7 @@ impl<'a, M: DistanceMetric> HnswIndex<'a, M> {
 
 // 2. Trait Implementation (The Public API)
 impl<'a, M: DistanceMetric> Indexing for HnswIndex<'a, M> {
-    fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>> {
+    fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError::RecordNotFound> {
         let mut current_node_id = match &self.collection.entry_point {
             Some(id) => *id,
             None => return None,
