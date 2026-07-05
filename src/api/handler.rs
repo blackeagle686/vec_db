@@ -1,7 +1,7 @@
 use axum::{extract::State, Json, http::StatusCode};
 use crate::api::models::*;
 use crate::api::routers::AppState; 
-use crate::domain::entities::{CollectionError, EngineTrait, CollectionTrait};
+use crate::domain::entities::{CollectionError, EngineTrait, CollectionTrait, };
 use std::collections::HashMap;
 
 pub async fn create_collection_handler(
