@@ -1,4 +1,5 @@
 use crate::domain::entities::Record;
+use crate::domain::entities::RecordError;
 
 pub trait Indexing {
     fn insert(&mut self, record: Record);
