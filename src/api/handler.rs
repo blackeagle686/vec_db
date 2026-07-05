@@ -79,12 +79,9 @@ pub async fn query_vector_handler(
     let mut engine = state.engine.write().unwrap();
     let collection = engine.get_collection_mut(&payload.collection_name).unwrap();
     
-    // 1. إصلاح المدخلات: تمرير الـ collection كمرجع متغير كما حددته في توقيع الدالة السابق
-    // 2. استخدام map_err لتحويل الـ RecordError إلى تنسيق خطأ Axum (StatusCode, String)
     let res_option = collection.query(payload.query_vector, collection)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {:?}", e)))?;
 
-    // 3. فك الـ Option بأمان: إذا كانت النتيجة Some نقوم بالبناء، وإذا كانت None نرجع خطأ 404
     if let Some((id, distance)) = res_option {
         let record = collection.get(&id)
             .map(|r| r.clone())
