@@ -52,7 +52,7 @@ impl<'a, M: DistanceMetric> HnswIndex<'a, M> {
 
 // 2. Trait Implementation (The Public API)
 impl<'a, M: DistanceMetric> Indexing for HnswIndex<'a, M> {
-    fn search(&self, query: &[f32]) -> <Option<(String, f32)>> {
+    fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>> {
         let mut current_node_id = match &self.collection.entry_point {
             Some(id) => *id,
             None => return None,
