@@ -53,14 +53,18 @@ pub async fn insert_record_handler(
     State(state): State<AppState>,
     Json(payload): Json<InsertRecordRequest>, 
 ) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)>{
+    
     // Get the current engine form the app state
     let mut engine = state.engine.write().unwrap();
+
     // get the collection by name
     let mut collection = engine.get_collection_mut(&payload.collection_name).unwrap();
 
+    // get the max layer and metadata from the request
     let max_layer = payload.max_layer.unwrap_or(0);
     let metadata = payload.metadata.unwrap_or(HashMap::new());
 
+    // insert the record into the collection
     collection.insert(payload.embeddings, max_layer, Some(metadata)).unwrap();
     Ok(Json(DefaultSuccessCreationResponse {
         success: true,
