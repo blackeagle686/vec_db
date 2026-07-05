@@ -15,7 +15,6 @@ pub struct DefaultSuccessCreationResponse{
 
 #[derive(Serialize, Deserialize)]
 pub struct CreateCollectionRequest {
-    pub engine_id: String,
     pub collection_name: String,
     pub index_type: Option<String>,
 }
