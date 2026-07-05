@@ -28,7 +28,7 @@ impl App {
             .route("/collection", post(create_collection_handler))
             .route("/collection/:id", get(get_collection_handler))
             .route("/insert", post(insert_record_handler))
-            .route("/query", post(query_vector_handler(<ra@gennew>6, <ra@gennew>7)))
+            .route("/query", post(query_vector_handler))
             .with_state(app_state.clone());
         Self { app, app_state }
     }
