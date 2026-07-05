@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use crate::domain::entities::{Record, Engine, Collection};
 use serde::{Serialize, Deserialize};
 
