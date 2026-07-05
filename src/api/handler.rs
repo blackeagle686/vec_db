@@ -1,5 +1,5 @@
 use axum::{extract::State, Json, http::StatusCode};
-use crate::api::models::{CreateCollectionRequest, DefaultSuccessCreationResponse};
+use crate::api::models::{CreateCollectionRequest, CreateRecordRequest, DefaultSuccessCreationResponse};
 use crate::api::routers::AppState; 
 use crate::domain::entities::{CollectionError, EngineTrait};
 
