@@ -36,9 +36,8 @@ pub async fn get_collection_handler(
     let mut engine = state.engine.write().unwrap();
 
     // 2. Do the database work
-    let index_type_str = payload.index_type.as_deref();
     
-    match engine.create_collection(&payload.collection_name, index_type_str) {
+    match engine.get_collection(&payload.collection_name, index_type_str) {
         Ok(_) => {  
             Ok(Json(DefaultSuccessCreationResponse {
                 success: true,
