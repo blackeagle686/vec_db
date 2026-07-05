@@ -25,7 +25,8 @@ impl CollectionTrait for Collection{
         Ok(())
     }
     
-    fn query(&self, query_vector: Vec<f32>) -> Result<Option<(String, f32)>, RecordError>{        let mut index = HnswIndex::<CosineDistance>::new(self);
+    fn query(&self, query_vector: Vec<f32>) -> Result<Option<(String, f32)>, RecordError>{
+        let mut index = HnswIndex::<CosineDistance>::new(self);
         index.search(&query_vector).unwrap()
     }
 
