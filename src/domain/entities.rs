@@ -96,7 +96,7 @@ impl Record {
 
 // ------------------------------ COLLECTION ------------------------------
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Collection {
     pub name: String,
     pub vectors: Vec<Record>,
