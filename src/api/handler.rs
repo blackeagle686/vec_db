@@ -53,6 +53,7 @@ pub async fn insert_record_handler(
     State(state): State<AppState>,
     Json(payload): Json<InsertRecordRequest>, 
 ) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)>{
+    // Get the current engine form the app state
     let mut engine = state.engine.write().unwrap();
     let mut collection = engine.get_collection_mut(&payload.collection_name).unwrap();
 
