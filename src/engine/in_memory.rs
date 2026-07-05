@@ -6,7 +6,6 @@ use std::fs;
 impl CollectionTrait for Collection{
     fn insert(
         &mut self, // MUST be &mut self, not mut self
-        id: &str,  
         embeddings: Vec<f32>,
         max_layer: usize,
         metadata: Option<HashMap<String, String>>
