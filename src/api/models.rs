@@ -54,6 +54,6 @@ pub struct CollectionQueryRequest {
 
 #[derive(Serialize, Deserialize)]
 pub struct CollectionQueryResponse {
-    pub id: Vec<,
+    pub id: Vec<unsize> ,
     pub distance: f32,
 }
