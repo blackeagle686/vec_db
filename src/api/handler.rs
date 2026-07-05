@@ -75,13 +75,27 @@ pub async fn insert_record_handler(
 pub async fn query_vector_handler(
     State(state): State<AppState>, 
     Json(payload): Json<CollectionQueryRequest>
-) -> Result<Json<CollectionQueryResponse>, (StatusCode, String) >{
+) -> Result<Json<CollectionQueryResponse>, (StatusCode, String)> {
     let mut engine = state.engine.write().unwrap();
     let collection = engine.get_collection_mut(&payload.collection_name).unwrap();
-    let res = collection.query(payload.query_vector).unwrap();
-    Ok(Json(CollectionQueryResponse {
-        id: res.unwrap().0,
-        distance: res.unwrap().1,
-        record: Some(collection.get(&res.unwrap().0).unwrap().clone()), 
-    }))
+    
+    // 1. إصلاح المدخلات: تمرير الـ collection كمرجع متغير كما حددته في توقيع الدالة السابق
+    // 2. استخدام map_err لتحويل الـ RecordError إلى تنسيق خطأ Axum (StatusCode, String)
+    let res_option = collection.query(payload.query_vector, collection)
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {:?}", e)))?;
+
+    // 3. فك الـ Option بأمان: إذا كانت النتيجة Some نقوم بالبناء، وإذا كانت None نرجع خطأ 404
+    if let Some((id, distance)) = res_option {
+        let record = collection.get(&id)
+            .map(|r| r.clone())
+            .ok_or((StatusCode::NOT_FOUND, "Record not found in collection".to_string()))?;
+
+        Ok(Json(CollectionQueryResponse {
+            id,
+            distance,
+            record: Some(record),
+        }))
+    } else {
+        Err((StatusCode::NOT_FOUND, "No matching vector found".to_string()))
+    }
 }
