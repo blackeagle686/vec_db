@@ -71,3 +71,23 @@ pub async fn insert_record_handler(
         message: format!("Record inserted successfully"),
     }))
 }
+
+pub async fn delete_collection_handler(
+    State(state): State<AppState>, 
+    Json(payload): Json<GetCollectionRequest>,
+) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)> {
+    
+    // 1. We want to CREATE a collection, so we need a WRITE lock!
+    // This will pause if someone else is currently writing.
+    let mut engine = state.engine.write().unwrap();
+    
+    match engine.delete_collection(&payload.collection_name) {
+        Ok(_) => {  
+            Ok(Json(DefaultSuccessCreationResponse {
+                success: true,
+                message: format!("Collection {} deleted successfully", payload.collection_name),
+            }))
+        },
+        Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())), 
+    }
+}
