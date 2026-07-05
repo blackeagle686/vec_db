@@ -54,7 +54,11 @@ pub async fn insert_record_handler(
 ) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)>{
     let mut engine = state.engine.write().unwrap();
     let mut collection = engine.get_collection(&payload.collection_name);
-    collection.insert()
+    collection.insert(payload.embeddings, payload.max_layer, payload.metadata);
+    Ok(Json(DefaultSuccessCreationResponse {
+        success: true,
+        message: format!("Record inserted successfully"),
+    }))
 
     
 
