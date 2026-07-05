@@ -35,7 +35,7 @@ pub async fn get_collection_handler(
     // This will pause if someone else is currently writing.
     let mut engine = state.engine.write().unwrap();
     
-    match engine.get_collection(&payload.collection_name, index_type_str) {
+    match engine.get_collection(&payload.collection_name) {
         Ok(_) => {  
             Ok(Json(DefaultSuccessCreationResponse {
                 success: true,
