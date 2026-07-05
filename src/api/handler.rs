@@ -79,6 +79,7 @@ pub async fn query_vector_handler(
     let mut engine = state.engine.write().unwrap();
     let collection = engine.get_collection_mut(&payload.collection_name).unwrap();
     let res = collection.query(payload.query_vector).unwrap();
+    let id = res.0;
     
     Ok(Json(CollectionQueryResponse {
         res: Some(res),
