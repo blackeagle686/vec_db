@@ -36,10 +36,10 @@ pub async fn get_collection_handler(
     let mut engine = state.engine.write().unwrap();
     
     match engine.get_collection(&payload.collection_name) {
-        Ok(_) => {  
+        Ok(collection) => {  
             Ok(Json(DefaultSuccessCreationResponse {
                 success: true,
-                message: format!("Collection {} created successfully", payload.collection_name),
+                message: format!("Collection {} retrieved successfully", payload.collection_name),
             }))
         },
         Err(e) => Err((StatusCode::BAD_REQUEST, e.to_string())), 
