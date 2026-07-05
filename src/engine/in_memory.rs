@@ -24,6 +24,9 @@ impl CollectionTrait for Collection{
         
         Ok(())
     }
+    
+    fn 
+
     fn get(&self, id: &str) -> Result<&Record, RecordError>{
         unimplemented!("get is not implemented yet");
     }
