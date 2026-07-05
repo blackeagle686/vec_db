@@ -32,7 +32,7 @@ impl CollectionTrait for Collection{
     }
 
     fn get(&self, id: &str) -> Result<&Record, RecordError>{
-        unimplemented!("get is not implemented yet");
+        self.vectors.get(id).ok_or_else(|| RecordError::RecordNotFound(id.to_string()))
     }
     fn delete(&mut self, id: &str) -> Result<(), RecordError>{
         unimplemented!("delete is not implemented yet");
