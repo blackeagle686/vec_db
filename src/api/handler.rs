@@ -39,7 +39,7 @@ pub async fn get_collection_handler(
     let index_type_str = payload.index_type.as_deref();
     
     match engine.create_collection(&payload.collection_name, index_type_str) {
-        Ok(_) => {
+        Ok(_) => {  
             Ok(Json(DefaultSuccessCreationResponse {
                 success: true,
                 message: format!("Collection {} created successfully", payload.collection_name),
