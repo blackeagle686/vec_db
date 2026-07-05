@@ -33,6 +33,7 @@ impl CollectionTrait for Collection{
     fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>{
         unimplemented!("update is not implemented yet");
     }
+    
 }
 
 impl EngineTrait for Engine {
