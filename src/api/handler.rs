@@ -83,7 +83,7 @@ pub async fn query_vector_handler(
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {:?}", e)))?;
 
     if let Some((id, distance)) = res_option {
-        // تم تغيير .ok_or إلى .map_err لأن الدالة ترجع Result بالفعل
+        // تم تغيير .ok_or إلى .map_err لأن الدالة  Result بالفعل
         let record = collection.get(&id)
             .map(|r| r.clone())
             .map_err(|e| (StatusCode::NOT_FOUND, format!("Record not found: {:?}", e)))?;
