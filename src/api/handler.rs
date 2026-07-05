@@ -79,7 +79,7 @@ pub async fn query_vector_handler(
     let mut engine = state.engine.write().unwrap();
     let collection = engine.get_collection_mut(&payload.collection_name).unwrap();
     
-    let res_option = collection.query(payload.query_vector, collection)
+    let res_option = collection.query(payload.query_vector)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {:?}", e)))?;
 
     if let Some((id, distance)) = res_option {
