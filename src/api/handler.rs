@@ -1,5 +1,5 @@
 use axum::{extract::State, Json, http::StatusCode};
-use crate::api::models::{CreateCollectionRequest, CreateRecordRequest, DefaultSuccessCreationResponse};
+use crate::api::models::{CreateCollectionRequest, CreateInsertRecordRequestRecordRequest, DefaultSuccessCreationResponse};
 use crate::api::routers::AppState; 
 use crate::domain::entities::{CollectionError, EngineTrait};
 
@@ -29,7 +29,7 @@ pub async fn create_collection_handler(
 
 pub async fn insert_record_handler(
     State(state): State<AppState>,
-    Json(payload): Json<CreateRecordRequest>, 
+    Json(payload): Json<InsertRecordRequest>, 
 ) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)>{
     let mut engine = state.engine.write().unwrap();
 
