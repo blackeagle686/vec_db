@@ -3,6 +3,7 @@ use crate::api::models::*;
 use crate::api::routers::AppState; 
 use crate::domain::entities::{CollectionError, EngineTrait};
 
+
 pub async fn create_collection_handler(
     State(state): State<AppState>, 
     Json(payload): Json<CreateCollectionRequest>,
