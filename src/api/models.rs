@@ -38,7 +38,7 @@ pub struct UpdateCollectionRequest {
 #[derive(Serialize, Deserialize)]
 pub struct InsertRecordRequest{
     pub collection_name: String,
-    
+    pub 
 }
 
 #[derive(Serialize, Deserialize)]
