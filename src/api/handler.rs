@@ -58,14 +58,16 @@ pub async fn insert_record_handler(
     let mut engine = state.engine.write().unwrap();
 
     // get the collection by name
-    let mut collection = engine.get_collection_mut(&payload.collection_name).unwrap(); // unwrap will return the collection if it exists, or panic if it doesn't
+    let collection = engine.get_collection_mut(&payload.collection_name)
+        .map_err(|e| (StatusCode::NOT_FOUND, e.to_string()))?;
 
     // get the max layer and metadata from the request
     let max_layer = payload.max_layer.unwrap_or(0);
-    let metadata = payload.metadata.unwrap_or(HashMap::new());
+    let metadata = payload.metadata.unwrap_or_default();
 
     // insert the record into the collection
-    collection.insert(payload.embeddings, max_layer, Some(metadata)).unwrap(); 
+    collection.insert(payload.embeddings, max_layer, Some(metadata))
+        .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, e.to_string()))?; 
     Ok(Json(DefaultSuccessCreationResponse {
         success: true,
         message: format!("Record inserted successfully"),
@@ -77,7 +79,8 @@ pub async fn query_vector_handler(
     Json(payload): Json<CollectionQueryRequest>
 ) -> Result<Json<CollectionQueryResponse>, (StatusCode, String)> {
     let mut engine = state.engine.write().unwrap();
-    let collection = engine.get_collection_mut(&payload.collection_name).unwrap();
+    let collection = engine.get_collection_mut(&payload.collection_name)
+        .map_err(|e| (StatusCode::NOT_FOUND, e.to_string()))?;
     
     let res_option = collection.query(payload.query_vector)
         .map_err(|e| (StatusCode::INTERNAL_SERVER_ERROR, format!("Query error: {:?}", e)))?;
