@@ -55,7 +55,7 @@ impl<'a, M: DistanceMetric> Indexing for HnswIndex<'a, M> {
     fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError> {
         let mut current_node_id = match &self.collection.entry_point {
             Some(id) => *id,
-            None => return Err(RecordError::RecordNotFound("No Vectors found")), // No entry point, so no vectors
+            None => return Err(RecordError::RecordNotFound("No entry point found, the collection is empty.".to_string())), // No entry point, so no vectors
         };
 
         for layer in (1..=self.collection.max_layer).rev() {
