@@ -54,7 +54,7 @@ pub async fn insert_record_handler(
 ) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)>{
     let mut engine = state.engine.write().unwrap();
     let collection = engine.get_collection(&payload.collection_name);
-    
+    let 
     
 
 
