@@ -58,7 +58,7 @@ pub async fn insert_record_handler(
     let mut engine = state.engine.write().unwrap();
 
     // get the collection by name
-    let mut collection = engine.get_collection_mut(&payload.collection_name).unwrap();
+    let mut collection = engine.get_collection_mut(&payload.collection_name).unwrap(); // unwrap will return the collection if it exists, or panic if it doesn't
 
     // get the max layer and metadata from the request
     let max_layer = payload.max_layer.unwrap_or(0);
