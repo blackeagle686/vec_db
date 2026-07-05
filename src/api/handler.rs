@@ -55,7 +55,7 @@ pub async fn insert_record_handler(
 ) -> Result<Json<DefaultSuccessCreationResponse>, (StatusCode, String)>{
     // Get the current engine form the app state
     let mut engine = state.engine.write().unwrap();
-    // 
+    // get the collection by name
     let mut collection = engine.get_collection_mut(&payload.collection_name).unwrap();
 
     let max_layer = payload.max_layer.unwrap_or(0);
