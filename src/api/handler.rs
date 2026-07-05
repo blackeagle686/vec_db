@@ -1,7 +1,7 @@
 use axum::{extract::State, Json, http::StatusCode};
 use crate::api::models::*;
 use crate::api::routers::AppState; 
-use crate::domain::entities::{CollectionError, EngineTrait, CollectionTrait, };
+use crate::domain::entities::{EngineTrait, CollectionTrait, };
 use std::collections::HashMap;
 
 pub async fn create_collection_handler(
@@ -58,7 +58,7 @@ pub async fn insert_record_handler(
 
     let max_layer = payload.max_layer.unwrap_or(0);
     let metadata = payload.metadata.unwrap_or(HashMap::new());
-    
+
     collection.insert(payload.embeddings, max_layer, Some(metadata)).unwrap();
     Ok(Json(DefaultSuccessCreationResponse {
         success: true,
