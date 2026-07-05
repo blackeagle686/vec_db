@@ -55,4 +55,5 @@ pub struct CollectionQueryRequest {
 pub struct CollectionQueryResponse {
     pub vector_id: String,
     pub distance: f32,
+    pub metadata: Option<HashMap<String, String>>,
 }
