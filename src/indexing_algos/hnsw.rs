@@ -1,4 +1,4 @@
-use crate::domain::entities::{DistanceMetric, Record, RecordError, Index};
+use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError, Index};
 use crate::indexing_algos::indexing::Indexing; 
 use rand::Rng;
 use std::sync::{Arc, RwLock};
@@ -15,9 +15,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
         }
     }
 
-    fn search_layer(&self, query: &[f32], start_id: usize, layer: usize) -> (usize, f32) {
-        let index = self.index.read().unwrap();
-        let collection = index.collection_ptr.read().unwrap();
+    fn search_layer(&self,collection: &Collection, query: &[f32], start_id: usize, layer: usize) -> (usize, f32) {
         let mut current = start_id;
         let mut curr_node = &collection.vectors[current];
         let mut best_dist = M::calculate(&curr_node.embeddings, query);
