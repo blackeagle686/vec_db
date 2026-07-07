@@ -59,11 +59,11 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         };
 
         for layer in (1..=collection.max_layer).rev() {
-            let closest = self.search_layer(query, current_node_id, layer);
+            let closest = self.search_layer(&collection, query, current_node_id, layer);
             current_node_id = closest.0;
         }
 
-        let result = self.search_layer(query, current_node_id, 0);
+        let result = self.search_layer(&collection, query, current_node_id, 0);
         Ok(Some((collection.vectors[result.0].id.clone(), result.1)))
     }
 
@@ -92,13 +92,13 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         let mut current_layer = collection.max_layer;
 
         while current_layer > node_max_layer {
-            let closest = self.search_layer(&record.embeddings, current_node_id, current_layer);
+            let closest = self.search_layer(&collection, &record.embeddings, current_node_id, current_layer);
             current_node_id = closest.0;
             current_layer = current_layer.saturating_sub(1);
         }
 
         for layer in (0..=node_max_layer).rev() {
-            let closest = self.search_layer(&record.embeddings, current_node_id, layer);
+            let closest = self.search_layer(&collection, &record.embeddings, current_node_id, layer);
             let nearest_neighbor_id = closest.0;
             
             record.layers[layer].push(nearest_neighbor_id);
