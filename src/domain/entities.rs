@@ -1,4 +1,4 @@
-use std::{collections::HashMap, sync::Arc, marker::PhantomData, RwLock};
+use std::{collections::HashMap, sync::{Arc, RwLock}, marker::PhantomData};
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 
