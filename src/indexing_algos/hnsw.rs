@@ -144,7 +144,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         }
 
         let result = self.search_layer(query, current_node_id, 0);
-        Ok(Some((self.collection.vectors[result.0].id.clone(), result.1)))
+        Ok(Some((collection.vectors[result.0].id.clone(), result.1)))
     }
 
     fn insert(&mut self, mut record: Record) {
