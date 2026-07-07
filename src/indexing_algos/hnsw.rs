@@ -4,12 +4,12 @@ use rand::Rng;
 use std::sync::{Arc, RwLock};
 
 pub struct HnswIndex<M: DistanceMetric> {
-    pub index: Arc<RwLock<Index<M>>>
+    pub index: Arc<Index<M>>
 }
 
 // 1. Struct-specific methods (Internal helpers)
 impl<M: DistanceMetric> HnswIndex<M> {
-    pub fn new(index: Arc<RwLock<Index<M>>>) -> Self {
+    pub fn new(index: Arc<Index<M>>) -> Self {
         Self {
             index,
         }
@@ -51,7 +51,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
 // 2. Trait Implementation (The Public API)
 impl<M: DistanceMetric> Indexing for HnswIndex<M> {
     fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError> {
-        let index = self.index.read().unwrap();
+        let index = self.index;
         let collection = index.collection_ptr.read().unwrap();
         let mut current_node_id = match &collection.entry_point {
             Some(id) => *id,
