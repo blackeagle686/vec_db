@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc, marker::PhantomData};
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
 
@@ -182,5 +182,6 @@ pub trait DistanceMetric {
 pub struct Index{
     pub collection_ptr: Arc<Mutex<Collection>>,
     pub indexing_type: String,
+    pub _metric: PhantomData<M>,
 }
 
