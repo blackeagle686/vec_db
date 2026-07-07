@@ -182,7 +182,16 @@ pub trait DistanceMetric {
 // ------------------------------ Index ------------------------------
 pub struct Index <M: DistanceMetric> {
     pub collection_ptr: Arc<Mutex<Collection>>,
-    pub indexing_type: String,
-    pub _metric: PhantomData<M>,
+    pub metric_type: PhantomData<M>,
+}
+
+impl <M: DistanceMetric> Index<M> {
+    pub fn new(collection: Arc<Mutex<Collection>>, indexing_type: String) -> Self {
+        Index {
+            collection_ptr: collection,
+            indexing_type,
+            _metric: PhantomData,
+        }
+    }
 }
 
