@@ -187,7 +187,7 @@ pub struct Index <M: DistanceMetric> {
 }
 
 impl <M: DistanceMetric> Index<M> {
-    pub fn new(collection: Arc<Mutex<Collection>>, index_algo: String) -> Self {
+    pub fn new(collection: Arc<Muteٌx<Collection>>, index_algo: String) -> Self {
         Index {
             collection_ptr: collection,
             index_algo,
