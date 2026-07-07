@@ -2,8 +2,7 @@ use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError, I
 use crate::indexing_algos::indexing::Indexing; 
 use std::marker::PhantomData;
 use rand::Rng;
-use std::sync::Arc;
-use tokio::sync::RwLock;
+use std::sync::{Arc, RwLock};
 
 /*
     each collection must have one index
