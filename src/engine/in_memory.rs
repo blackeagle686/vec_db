@@ -1,4 +1,4 @@
-use crate::{domain::{entities::{Collection, CollectionError, CollectionTrait, Engine, EngineError, EngineTrait, Record, RecordError}, metrics::CosineDistance}, indexing_algos::{hnsw::HnswIndex, indexing::Indexing}};
+use crate::{domain::{entities::{Collection, CollectionError, CollectionTrait, Engine, EngineError, EngineTrait, Index, Record, RecordError}, metrics::CosineDistance}, indexing_algos::{hnsw::HnswIndex, indexing::Indexing}};
 use std::collections::HashMap;
 use bincode;
 use std::fs; 
@@ -27,7 +27,7 @@ impl CollectionTrait for Collection{
     }
     
     fn query(&self, query_vector: Vec<f32>) -> Result<Option<(String, f32)>, RecordError>{
-        let index = HnswIndex::<CosineDistance>::new(Arc::new());
+        let index = HnswIndex::<CosineDistance>::new(Arc::new(Index));
         let res = index.search(&query_vector)?;
         Ok(res)
     }
