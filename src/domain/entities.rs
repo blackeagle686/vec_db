@@ -179,5 +179,7 @@ pub trait DistanceMetric {
 }
 
 // ------------------------------ Index ------------------------------
-
+pub struct Index{
+    pub data: Vec<f32>,
+}
 
