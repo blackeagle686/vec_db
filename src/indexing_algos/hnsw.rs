@@ -92,7 +92,6 @@ impl<M: DistanceMetric> HnswIndex<M> {
     pub fn new(index: Arc<RwLock<Index<M>>>) -> Self {
         Self {
             index,
-            _metric: PhantomData,
         }
     }
 
