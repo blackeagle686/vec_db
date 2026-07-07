@@ -177,3 +177,7 @@ pub trait EngineTrait {
 pub trait DistanceMetric {
     fn calculate(a: &[f32], b: &[f32]) -> f32;
 }
+
+// ------------------------------ Index ------------------------------
+
+
