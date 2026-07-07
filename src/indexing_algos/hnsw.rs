@@ -117,7 +117,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
             }
 
             if !moved { break; }
-            curr_node = &index.collection_ptr.read().unwrap().vectors[current];
+            curr_node = &collection.vectors[current];
         }
 
         (current, best_dist)
