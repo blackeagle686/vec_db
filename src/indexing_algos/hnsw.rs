@@ -96,8 +96,9 @@ impl<M: DistanceMetric> HnswIndex<M> {
     }
 
     fn search_layer(&self, query: &[f32], start_id: usize, layer: usize) -> (usize, f32) {
+        let index = self.index.read().unwrap();
         let mut current = start_id;
-        let mut curr_node = &self.index.read().unwrap().collection_ptr.read().unwrap().vectors[current];
+        let mut curr_node = &index.collection_ptr.read().unwrap().vectors[current];
         let mut best_dist = M::calculate(&curr_node.embeddings, query);
 
         loop {
@@ -105,7 +106,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
 
             for neighbor_id in &curr_node.layers[layer] {
                 if layer >= curr_node.layers.len() { continue; }
-                let neighbor = &self.index.read().unwrap().collection_ptr.read().unwrap().vectors[*neighbor_id];
+                let neighbor = &index.collection_ptr.read().unwrap().vectors[*neighbor_id];
                 let dist = M::calculate(&neighbor.embeddings, query);
                 if dist < best_dist {
                     best_dist = dist;
@@ -115,7 +116,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
             }
 
             if !moved { break; }
-            curr_node = &self.index.read().unwrap().collection_ptr.read().unwrap().vectors[current];
+            curr_node = &index.collection_ptr.read().unwrap().vectors[current];
         }
 
         (current, best_dist)
