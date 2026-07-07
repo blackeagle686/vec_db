@@ -96,8 +96,8 @@ impl<M: DistanceMetric> HnswIndex<M> {
     }
 
     fn search_layer(&self, query: &[f32], start_id: usize, layer: usize) -> (usize, f32) {
-        let index = self.index.read().unwrap();
-        let collection = index.collection_ptr.read().unwrap();
+        let index = self.index.read().await;
+        let collection = index.collection_ptr.read().await;
         let mut current = start_id;
         let mut curr_node = &collection.vectors[current];
         let mut best_dist = M::calculate(&curr_node.embeddings, query);
