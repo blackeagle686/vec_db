@@ -1,7 +1,10 @@
-use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError};
+use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError, Index, IndexTrait};
 use crate::indexing_algos::indexing::Indexing; 
 use std::marker::PhantomData;
 use rand::Rng;
+use std::sync::{Arc, Mutex, RwLock};
+use std::marker::PhantomData;
+
 
 /*
     each collection must have one index
@@ -80,7 +83,7 @@ use rand::Rng;
 
 */
 
-pub struct HnswIndex<'a, M: DistanceMetric> {
+pub struct HnswIndex<M: DistanceMetric> {
     pub index: Arc<RwLock<Index<M>>>
 }
 
