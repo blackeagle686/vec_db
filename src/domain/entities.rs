@@ -1,7 +1,6 @@
-use std::{collections::HashMap, sync::Arc, marker::PhantomData};
+use std::{collections::HashMap, sync::Arc, marker::PhantomData, RwLock};
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
-use tokio::sync::{Mutex, RwLock};
 
 #[derive(Error, Debug)]
 pub enum CollectionError{
