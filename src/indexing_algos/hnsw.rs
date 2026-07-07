@@ -1,4 +1,4 @@
-use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError, Index, IndexTrait};
+use crate::domain::entities::{DistanceMetric, Record, RecordError, Index};
 use crate::indexing_algos::indexing::Indexing; 
 use rand::Rng;
 use std::sync::{Arc, RwLock};
