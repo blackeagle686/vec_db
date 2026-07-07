@@ -78,8 +78,8 @@ pub async fn query_vector_handler(
     State(state): State<AppState>, 
     Json(payload): Json<CollectionQueryRequest>
 ) -> Result<Json<CollectionQueryResponse>, (StatusCode, String)> {
-    let mut engine = state.engine.write().unwrap();
-    let mut collection = engine.get_collection_mut(&payload.collection_name)
+    let engine = state.engine.read().unwrap();
+    let collection = engine.get_collection(&payload.collection_name)
         .map_err(|e| (StatusCode::NOT_FOUND, e.to_string()))?;
     
     let res_option = collection.query(payload.vector)
