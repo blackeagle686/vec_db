@@ -199,7 +199,23 @@ pub trait IndexTrait<M: DistanceMetric> {
     fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError>;
     fn delete(&mut self, id: &str) -> Result<(), RecordError>;
     fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError>;
-    fn save_to_disk(&self) -> Result<(), RecordError>;
-    fn load_from_disk(path: &str) -> Result<Self, RecordError> where Self: Sized;
 }
 
+impl <M: DistanceMetric> IndexTrait<M> for Index<M> {
+    fn insert(&mut self, record: Record) -> Result<(), RecordError> {
+        
+        Ok(())
+    }
+    fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError> {
+        
+        Ok(None)
+    }
+    fn delete(&mut self, id: &str) -> Result<(), RecordError> {
+        
+        Ok(())
+    }
+    fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError> {
+        
+        Ok(())
+    }
+}
