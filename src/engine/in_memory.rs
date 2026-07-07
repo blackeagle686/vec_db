@@ -2,6 +2,7 @@ use crate::{domain::{entities::{Collection, CollectionError, CollectionTrait, En
 use std::collections::HashMap;
 use bincode;
 use std::fs; 
+use std::sync::Arc;
 
 impl CollectionTrait for Collection{
     fn insert(
@@ -16,7 +17,7 @@ impl CollectionTrait for Collection{
         // On-the-fly Strategy Pattern!
         match self.indexing_type.to_uppercase().as_str() {
             "HNSW" => {
-                let mut index = HnswIndex::<CosineDistance>::new(self);
+                let mut index = HnswIndex::<CosineDistance>::new(Arc::new(self));
                 index.insert(record);
             },
             _ => return Err(RecordError::IndexingTypeNotFound(self.indexing_type.clone())),
