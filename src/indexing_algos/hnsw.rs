@@ -149,20 +149,22 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
 
     fn insert(&mut self, mut record: Record) {
         let node_max_layer = self.random_layer();
-        
+        let mut index = self.index.write().unwrap();
+        let mut collection = index.collection_ptr.write().unwrap();
+
         // CRITICAL: Expand the layers array if node_max_layer > original max_layer
         if record.layers.len() <= node_max_layer {
             record.layers.resize(node_max_layer + 1, vec![]);
         }
         
-        record.mapped_id = self.collection.next_id;
-        self.collection.id_map.insert(record.id.clone(), record.mapped_id);
-        self.collection.next_id += 1;
+        record.mapped_id = collection.next_id;
+        collection.id_map.insert(record.id.clone(), record.mapped_id);
+        collection.next_id += 1;
 
-        if self.collection.entry_point.is_none() {
-            self.collection.entry_point = Some(record.mapped_id);
-            self.collection.max_layer = node_max_layer;
-            self.collection.vectors.push(record);
+        if collection.entry_point.is_none() {
+            collection.entry_point = Some(record.mapped_id);
+            collection.max_layer = node_max_layer;
+            collection.vectors.push(record);
             return;
         }
 
