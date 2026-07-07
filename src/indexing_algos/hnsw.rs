@@ -129,14 +129,16 @@ impl<M: DistanceMetric> HnswIndex<M> {
 }
 
 // 2. Trait Implementation (The Public API)
-impl<'a, M: DistanceMetric> Indexing for HnswIndex<'a, M> {
+impl<M: DistanceMetric> Indexing for HnswIndex<M> {
     fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError> {
-        let mut current_node_id = match &self.collection.entry_point {
+        let index = self.index.read().unwrap();
+        let collection = index.collection_ptr.read().unwrap();
+        let mut current_node_id = match &collection.entry_point {
             Some(id) => *id,
             None => return Err(RecordError::RecordNotFound("No entry point found, the collection is empty.".to_string())), // No entry point, so no vectors
         };
 
-        for layer in (1..=self.collection.max_layer).rev() {
+        for layer in (1..=collection.max_layer).rev() {
             let closest = self.search_layer(query, current_node_id, layer);
             current_node_id = closest.0;
         }
