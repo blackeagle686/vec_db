@@ -105,7 +105,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
 
             for neighbor_id in &curr_node.layers[layer] {
                 if layer >= curr_node.layers.len() { continue; }
-                let neighbor = &self.collection.vectors[*neighbor_id];
+                let neighbor = &self.index.read().unwrap().collection_ptr.read().unwrap().vectors[*neighbor_id];
                 let dist = M::calculate(&neighbor.embeddings, query);
                 if dist < best_dist {
                     best_dist = dist;
