@@ -88,10 +88,10 @@ pub struct HnswIndex<M: DistanceMetric> {
 }
 
 // 1. Struct-specific methods (Internal helpers)
-impl<'a, M: DistanceMetric> HnswIndex<'a, M> {
-    pub fn new(collection: &'a mut Collection) -> Self {
+impl<M: DistanceMetric> HnswIndex<M> {
+    pub fn new(index: Arc<RwLock<Index<M>>>) -> Self {
         Self {
-            collection,
+            index,
             _metric: PhantomData,
         }
     }
