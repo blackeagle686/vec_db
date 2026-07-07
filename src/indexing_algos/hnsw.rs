@@ -1,6 +1,5 @@
 use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError, Index, IndexTrait};
 use crate::indexing_algos::indexing::Indexing; 
-use std::marker::PhantomData;
 use rand::Rng;
 use std::sync::{Arc, RwLock};
 
