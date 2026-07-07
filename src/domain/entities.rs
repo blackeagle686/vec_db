@@ -180,6 +180,7 @@ pub trait DistanceMetric {
 
 // ------------------------------ Index ------------------------------
 pub struct Index{
-    
+    pub collection_ptr: Arc<Mutex<Collection>>,
+    pub indexing_type: String,
 }
 
