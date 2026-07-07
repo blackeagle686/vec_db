@@ -81,8 +81,7 @@ use rand::Rng;
 */
 
 pub struct HnswIndex<'a, M: DistanceMetric> {
-    pub collection: &'a mut Collection,
-    _metric: PhantomData<M>, 
+    pub index: Arc<RwLock<Index<M>>>
 }
 
 // 1. Struct-specific methods (Internal helpers)
