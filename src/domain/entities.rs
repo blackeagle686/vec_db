@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc, marker::PhantomData};
 use thiserror::Error;
 use serde::{Serialize, Deserialize};
-use tokio::sync::Mutex;
+use tokio::sync::{Mutex, RwLock};
 
 #[derive(Error, Debug)]
 pub enum CollectionError{
@@ -181,16 +181,14 @@ pub trait DistanceMetric {
 
 // ------------------------------ Index ------------------------------
 pub struct Index <M: DistanceMetric> {
-    pub collection_ptr: Arc<Mutex<Collection>>,
-    pub index_algo: String,
+    pub collection_ptr: Arc<RwLock<Collection>>,
     pub metric_type: PhantomData<M>,
 }
 
 impl <M: DistanceMetric> Index<M> {
-    pub fn new(collection: Arc<Muteٌx<Collection>>, index_algo: String) -> Self {
+    pub fn new(collection: Arc<RwLock<Collection>>) -> Self {
         Index {
             collection_ptr: collection,
-            index_algo,
             metric_type: PhantomData,
         }
     }
