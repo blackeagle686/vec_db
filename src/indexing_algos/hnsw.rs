@@ -71,7 +71,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
 
     fn insert(&mut self, mut record: Record) {
         let node_max_layer = self.random_layer();
-        let mut index = self.index.write().unwrap();
+        let index = self.index.write().unwrap();
         let mut collection = index.collection_ptr.write().unwrap();
 
         // CRITICAL: Expand the layers array if node_max_layer > original max_layer
