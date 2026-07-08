@@ -118,6 +118,7 @@ impl EngineTrait for Engine {
 
         bincode::deserialize(&bytes)
         .map_err(|e| EngineError::EngineLoadFailed(e.to_string()))
+    }
 }
 
 #[cfg(test)]
