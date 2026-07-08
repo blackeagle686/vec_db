@@ -13,3 +13,4 @@ axum = "0.7"
 rustc-hash = "2.1.3"
 rayon = "1.12.0"
 parking_lot = { version = "0.12.5", features = ["serde"] }
+uuid = { version = "1.23.4", features = ["v4"] }
