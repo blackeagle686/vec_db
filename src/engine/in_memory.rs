@@ -173,10 +173,10 @@ mod tests {
         let start_insert = Instant::now();
         collection.insert_batch(batch).unwrap();
         let duration_insert = start_insert.elapsed();
-        println!("✅ Finished inserting {} vectors in {:?}", num_vectors, duration_insert);
+        println!("[+] Finished inserting {} vectors in {:?}", num_vectors, duration_insert);
         println!("   Average insert time: {:?}", duration_insert / num_vectors as u32);
 
-        println!("\n🔍 Running queries...");
+        println!("\n[+] Running queries...");
         let num_queries = 100;
         let mut total_search_time = std::time::Duration::new(0, 0);
 
