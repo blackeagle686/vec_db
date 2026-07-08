@@ -1,10 +1,10 @@
 use crate::{
-    domain::{
-    entities::{Collection, CollectionError, CollectionTrait,
-    Engine, EngineError, EngineTrait, 
-    Index, Record, RecordError},
+    domain::{entities::{Collection, CollectionError,
+    CollectionTrait, Engine, EngineError, 
+    EngineTrait, Index, Record, RecordError},
     metrics::CosineDistance},
-    indexing_algos::{hnsw::HnswIndex, indexing::Indexing}};
+    indexing_algos::{hnsw::HnswIndex, indexing::Indexing}
+};
 use std::collections::HashMap;
 use bincode;
 use std::fs; 
