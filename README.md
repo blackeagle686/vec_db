@@ -1,17 +1,17 @@
 <div align="center">
   
-<h1 align="center" style="background: linear-gradient(to right, #00C9FF, #92FE9D); -webkit-background-clip: text; color: transparent; font-size: 3em; font-weight: bold;">
+<h1 align="center" style="background: linear-gradient(to right, #6A0DAD, #008080); -webkit-background-clip: text; color: transparent; font-size: 3em; font-weight: bold;">
   TachyonDB
 </h1>
 
 **A Production-Grade, Blazingly Fast, Multi-Threaded Vector Database Engine in Pure Rust.**
 
-[![Rust](https://img.shields.io/badge/Built_with-Rust-00C9FF.svg?style=for-the-badge&logo=rust)]()
-[![Index](https://img.shields.io/badge/Index-HNSW-92FE9D.svg?style=for-the-badge)]()
-[![Concurrency](https://img.shields.io/badge/Concurrency-Rayon-00C9FF.svg?style=for-the-badge)]()
-[![Status](https://img.shields.io/badge/Status-Ingestion_Layer_Active-92FE9D.svg?style=for-the-badge)]()
+[![Rust](https://img.shields.io/badge/Built_with-Rust-6A0DAD.svg?style=for-the-badge&logo=rust)]()
+[![Index](https://img.shields.io/badge/Index-HNSW-008080.svg?style=for-the-badge)]()
+[![Concurrency](https://img.shields.io/badge/Concurrency-Rayon-6A0DAD.svg?style=for-the-badge)]()
+[![Status](https://img.shields.io/badge/Status-Ingestion_Layer_Active-008080.svg?style=for-the-badge)]()
 
-<hr style="border: 1px solid #00C9FF; width: 50%;" />
+<hr style="border: 1px solid #6A0DAD; width: 50%;" />
 </div>
 
 ##  Overview
@@ -32,7 +32,7 @@ Unlike standard vector databases that only accept floating-point arrays, **Tachy
 ##  System Architecture
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#00C9FF', 'primaryBorderColor': '#008080', 'lineColor': '#00C9FF', 'tertiaryColor': '#E0F2F1'}}}%%
+%%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#4B0082', 'primaryBorderColor': '#008080', 'lineColor': '#008080', 'tertiaryColor': '#1A1A1A'}}}%%
 graph TD
     A[Client Request] -->|Files / Text / Vectors| B[Axum API Gateway]
     B --> C(Tachyon Engine Arc RwLock)
