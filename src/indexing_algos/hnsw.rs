@@ -1,7 +1,6 @@
-use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError, Index};
+use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError};
 use crate::indexing_algos::indexing::Indexing; 
 use rand::Rng;
-use std::sync::Arc;
 use std::collections::{BinaryHeap, HashSet};
 use std::cmp::{Reverse, Ordering};
 
@@ -189,7 +188,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         let max_layer_to_link = std::cmp::min(collection.max_layer, node_max_layer);
 
         for layer in (0..=max_layer_to_link).rev() {
-            let results = self.search_layer(&collection, &collection.vectors[new_id].embeddings, &ep, layer, EF_CONSTRUCTION);
+            let results = Self::search_layer(collection, &collection.vectors[new_id].embeddings, &ep, layer, EF_CONSTRUCTION);
             
             let m_max = if layer == 0 { M_MAX_0 } else { M };
             

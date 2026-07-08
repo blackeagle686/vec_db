@@ -201,19 +201,19 @@ pub trait IndexTrait<M: DistanceMetric> {
 }
 
 impl <M: DistanceMetric> IndexTrait<M> for Index<M> {
-    fn insert(&mut self, record: Record) -> Result<(), RecordError> {
+    fn insert(&mut self, _record: Record) -> Result<(), RecordError> {
         
         Ok(())
     }
-    fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError> {
+    fn search(&self, _query: &[f32]) -> Result<Option<(String, f32)>, RecordError> {
         
         Ok(None)
     }
-    fn delete(&mut self, id: &str) -> Result<(), RecordError> {
+    fn delete(&mut self, _id: &str) -> Result<(), RecordError> {
         
         Ok(())
     }
-    fn update(&mut self, id: &str, embeddings: Vec<f32>) -> Result<(), RecordError> {
+    fn update(&mut self, _id: &str, _embeddings: Vec<f32>) -> Result<(), RecordError> {
         
         Ok(())
     }

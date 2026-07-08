@@ -2,7 +2,6 @@ use axum::{extract::State, Json, http::StatusCode};
 use crate::api::models::*;
 use crate::api::routers::AppState; 
 use crate::domain::entities::{EngineTrait, CollectionTrait, };
-use std::collections::HashMap;
 
 pub async fn create_collection_handler(
     State(state): State<AppState>, 
@@ -34,10 +33,10 @@ pub async fn get_collection_handler(
     
     // 1. We want to CREATE a collection, so we need a WRITE lock!
     // This will pause if someone else is currently writing.
-    let mut engine = state.engine.write().unwrap();
+    let engine = state.engine.write().unwrap();
     
     match engine.get_collection(&payload.collection_name) {
-        Ok(collection) => {  
+        Ok(_collection) => {  
             Ok(Json(DefaultSuccessCreationResponse {
                 success: true,
                 message: format!("Collection {} retrieved successfully", payload.collection_name),

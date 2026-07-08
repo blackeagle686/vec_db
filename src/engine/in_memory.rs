@@ -1,14 +1,13 @@
 use crate::{
     domain::{entities::{Collection, CollectionError,
     CollectionTrait, Engine, EngineError, 
-    EngineTrait, Index, Record, RecordError},
+    EngineTrait, Record, RecordError},
     metrics::CosineDistance},
     indexing_algos::{hnsw::HnswIndex, indexing::Indexing}
 };
 use std::collections::HashMap;
 use bincode;
 use std::fs; 
-use std::sync::Arc;
 
 impl CollectionTrait for Collection{
     fn insert(
@@ -23,8 +22,7 @@ impl CollectionTrait for Collection{
         // On-the-fly Strategy Pattern!
         match self.indexing_type.to_uppercase().as_str() {
             "HNSW" => {
-                let mut index = HnswIndex::<CosineDistance>::new(Arc::new(self));
-                index.insert(record);
+                HnswIndex::<CosineDistance>::insert(self, record);
             },
             _ => return Err(RecordError::IndexingTypeNotFound(self.indexing_type.clone())),
         }
@@ -33,15 +31,17 @@ impl CollectionTrait for Collection{
     }
     
     fn query(&self, query_vector: Vec<f32>) -> Result<Option<(String, f32)>, RecordError>{
-        let index = HnswIndex::<CosineDistance>::new(Arc::new(Index));
-        let res = index.search(&query_vector)?;
+        let res = match self.indexing_type.to_uppercase().as_str() {
+            "HNSW" => HnswIndex::<CosineDistance>::search(self, &query_vector)?,
+            _ => return Err(RecordError::IndexingTypeNotFound(self.indexing_type.clone())),
+        };
         Ok(res)
     }
 
     fn get(&self, id: &str) -> Result<&Record, RecordError>{
         self.vectors.get(*self.id_map.get(id).ok_or_else(|| RecordError::RecordNotFound(id.to_string()))?).ok_or_else(|| RecordError::RecordNotFound(id.to_string()))
     }
-    fn delete(&mut self, id: &str) -> Result<(), RecordError>{
+    fn delete(&mut self, _id: &str) -> Result<(), RecordError>{
         unimplemented!("delete is not implemented yet");
     }
     fn update(&mut self, _id: &str, _embeddings: Vec<f32>) -> Result<(), RecordError>{
