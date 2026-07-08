@@ -135,8 +135,8 @@ mod tests {
         engine.create_collection("vectors", Some("HNSW")).unwrap();
         let collection = engine.get_collection_mut("vectors").unwrap();
 
-        let num_vectors = 10_000;
-        let dim = 128;
+        let num_vectors = 100_000;
+        let dim = 763;
         let mut rng = rand::thread_rng();
 
         println!("Generating and inserting {} random vectors ({} dimensions)...", num_vectors, dim);
