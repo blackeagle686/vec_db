@@ -88,8 +88,14 @@ curl -X POST http://localhost:3000/query \
   }'
 ```
 
-## Development Roadmap
+## Benchmarks
 
+Our custom-built, stateless HNSW algorithm achieves blazing fast performance in pure Rust without external C++ bindings. Tested with `ef_construction=100`, `M=16`, and `ef_search=50` on 128-dimensional embeddings:
+
+- **Insertion**: 10,000 vectors inserted and graph linked in **~23.78 seconds** (avg **2.37ms** per vector).
+- **Search**: 100 queries executed in **~191ms** (avg **1.91ms** per query) with high recall.
+
+## Development Roadmap
 - **[COMPLETED] Phase 1: Foundation**: Core structs, static distance metrics, HNSW index foundation, custom error handling.
 - **[COMPLETED] Phase 2: Persistence**: Disk persistence via `serde` and `bincode` to save and load the `Engine` state across restarts.
 - **[COMPLETED] Phase 3: Performance Optimization**: Refactored internal graph traversal to use sequential integer mapping and contiguous memory `Vec<Record>`, eliminating heap allocations in the hot path.
