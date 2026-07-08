@@ -1,7 +1,7 @@
 <div align="center">
   
 <h1 align="center" style="background: linear-gradient(to right, #6A0DAD, #008080); -webkit-background-clip: text; color: transparent; font-size: 3em; font-weight: bold;">
-  TachyonDB
+  Phoenix-Vector
 </h1>
 
 **A Production-Grade, Blazingly Fast, Multi-Threaded Vector Database Engine in Pure Rust.**
@@ -16,9 +16,9 @@
 
 ##  Overview
 
-TachyonDB is a highly optimized vector database engine and AI-native ingestion platform built entirely from scratch in Rust. Designed with strict systems architecture principles, it focuses on memory efficiency, zero-cost abstractions, multi-threaded CPU saturation, and blazingly fast approximate nearest neighbor (ANN) search capabilities.
+Phoenix-Vector is a highly optimized vector database engine and AI-native ingestion platform built entirely from scratch in Rust. Designed with strict systems architecture principles, it focuses on memory efficiency, zero-cost abstractions, multi-threaded CPU saturation, and blazingly fast approximate nearest neighbor (ANN) search capabilities.
 
-Unlike standard vector databases that only accept floating-point arrays, **TachyonDB is an end-to-end platform**. It can ingest raw files (`.pdf`, `.docx`, `.xlsx`, `.txt`), automatically chunk them, embed them using neural networks (like OpenAI or local ONNX models), and build a highly concurrent HNSW graph index in seconds.
+Unlike standard vector databases that only accept floating-point arrays, **Phoenix-Vector is an end-to-end platform**. It can ingest raw files (`.pdf`, `.docx`, `.xlsx`, `.txt`), automatically chunk them, embed them using neural networks (like OpenAI or local ONNX models), and build a highly concurrent HNSW graph index in seconds.
 
 ## Core Features
 
@@ -35,7 +35,7 @@ Unlike standard vector databases that only accept floating-point arrays, **Tachy
 %%{init: {'theme': 'dark', 'themeVariables': { 'primaryColor': '#4B0082', 'primaryBorderColor': '#008080', 'lineColor': '#008080', 'tertiaryColor': '#1A1A1A'}}}%%
 graph TD
     A[Client Request] -->|Files / Text / Vectors| B[Axum API Gateway]
-    B --> C(Tachyon Engine Arc RwLock)
+    B --> C(Phoenix Engine Arc RwLock)
     
     subgraph Ingestion Layer
         C --> D[File Parser]
