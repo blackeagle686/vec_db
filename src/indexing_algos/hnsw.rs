@@ -4,6 +4,7 @@ use rand::Rng;
 use std::collections::BinaryHeap;
 use rustc_hash::FxHashSet;
 use std::cmp::{Reverse, Ordering};
+use std::cell::RefCell;
 
 const M: usize = 16;
 const M_MAX_0: usize = 32;
@@ -49,6 +50,10 @@ impl SearchContext {
         self.candidates.clear();
         self.results.clear();
     }
+}
+
+thread_local! {
+    static SEARCH_CTX: RefCell<SearchContext> = RefCell::new(SearchContext::new());
 }
 
 pub struct HnswIndex<M: DistanceMetric> {
@@ -145,14 +150,16 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         }
 
         // Phase 2: Beam search on layer 0
-        let mut ctx = SearchContext::new();
-        Self::search_layer(collection, query, &[current_node_id], 0, EF_SEARCH, &mut ctx);
-        let closest = ctx.results.into_iter().min_by(|a, b| a.0.cmp(&b.0));
-        
-        match closest {
-            Some((dist, id)) => Ok(Some((collection.vectors[id].id.clone(), dist.0))),
-            None => Ok(None)
-        }
+        SEARCH_CTX.with(|ctx_cell| {
+            let mut ctx = ctx_cell.borrow_mut();
+            Self::search_layer(collection, query, &[current_node_id], 0, EF_SEARCH, &mut ctx);
+            let closest = ctx.results.drain().min_by(|a, b| a.0.cmp(&b.0));
+            
+            match closest {
+                Some((dist, id)) => Ok(Some((collection.vectors[id].id.clone(), dist.0))),
+                None => Ok(None)
+            }
+        })
     }
 
     fn insert(collection: &mut Collection, mut record: Record) {
@@ -207,50 +214,53 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         // Phase 2: Beam search and link for layer <= node_max_layer
         let mut ep = vec![current_node_id];
         let max_layer_to_link = std::cmp::min(collection.max_layer, node_max_layer);
-        let mut ctx = SearchContext::new();
 
-        for layer in (0..=max_layer_to_link).rev() {
-            Self::search_layer(collection, &collection.vectors[new_id].embeddings, &ep, layer, EF_CONSTRUCTION, &mut ctx);
+        SEARCH_CTX.with(|ctx_cell| {
+            let mut ctx = ctx_cell.borrow_mut();
             
-            let m_max = if layer == 0 { M_MAX_0 } else { M };
-            
-            let mut neighbors: Vec<(OrderedFloat, usize)> = ctx.results.drain().collect();
-            // Sort by distance (closest first)
-            neighbors.sort_by(|a, b| a.0.cmp(&b.0));
-            
-            // Entry points for next layer down should be the full candidate set found here
-            ep = neighbors.iter().map(|&(_, id)| id).collect();
+            for layer in (0..=max_layer_to_link).rev() {
+                Self::search_layer(collection, &collection.vectors[new_id].embeddings, &ep, layer, EF_CONSTRUCTION, &mut ctx);
+                
+                let m_max = if layer == 0 { M_MAX_0 } else { M };
+                
+                let mut neighbors: Vec<(OrderedFloat, usize)> = ctx.results.drain().collect();
+                // Sort by distance (closest first)
+                neighbors.sort_by(|a, b| a.0.cmp(&b.0));
+                
+                // Entry points for next layer down should be the full candidate set found here
+                ep = neighbors.iter().map(|&(_, id)| id).collect();
 
-            // Link up to M neighbors
-            neighbors.truncate(M);
-            let neighbor_ids: Vec<usize> = neighbors.into_iter().map(|(_, id)| id).collect();
+                // Link up to M neighbors
+                neighbors.truncate(M);
+                let neighbor_ids: Vec<usize> = neighbors.into_iter().map(|(_, id)| id).collect();
 
-            collection.vectors[new_id].layers[layer] = neighbor_ids.clone();
-            
-            // Add reverse links and mark nodes that need shrinking
-            let mut shrink_tasks = vec![];
-            for &n_id in &neighbor_ids {
-                collection.vectors[n_id].layers[layer].push(new_id);
-                if collection.vectors[n_id].layers[layer].len() > m_max {
-                    shrink_tasks.push(n_id);
+                collection.vectors[new_id].layers[layer] = neighbor_ids.clone();
+                
+                // Add reverse links and mark nodes that need shrinking
+                let mut shrink_tasks = vec![];
+                for &n_id in &neighbor_ids {
+                    collection.vectors[n_id].layers[layer].push(new_id);
+                    if collection.vectors[n_id].layers[layer].len() > m_max {
+                        shrink_tasks.push(n_id);
+                    }
+                }
+
+                // Shrink the overflowed neighbors
+                for n_id in shrink_tasks {
+                    let n_emb = collection.vectors[n_id].embeddings.clone();
+                    let mut connections: Vec<(OrderedFloat, usize)> = collection.vectors[n_id].layers[layer]
+                        .iter()
+                        .map(|&id| {
+                            let dist = M::calculate(&collection.vectors[id].embeddings, &n_emb);
+                            (OrderedFloat(dist), id)
+                        })
+                        .collect();
+                    connections.sort(); // ascending distance
+                    connections.truncate(m_max);
+                    collection.vectors[n_id].layers[layer] = connections.into_iter().map(|(_, id)| id).collect();
                 }
             }
-
-            // Shrink the overflowed neighbors
-            for n_id in shrink_tasks {
-                let n_emb = collection.vectors[n_id].embeddings.clone();
-                let mut connections: Vec<(OrderedFloat, usize)> = collection.vectors[n_id].layers[layer]
-                    .iter()
-                    .map(|&id| {
-                        let dist = M::calculate(&collection.vectors[id].embeddings, &n_emb);
-                        (OrderedFloat(dist), id)
-                    })
-                    .collect();
-                connections.sort(); // ascending distance
-                connections.truncate(m_max);
-                collection.vectors[n_id].layers[layer] = connections.into_iter().map(|(_, id)| id).collect();
-            }
-        }
+        });
 
         if node_max_layer > collection.max_layer {
             collection.max_layer = node_max_layer;
