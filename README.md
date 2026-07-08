@@ -14,13 +14,13 @@
 <hr style="border: 1px solid #00C9FF; width: 50%;" />
 </div>
 
-## 🌌 Overview
+##  Overview
 
 TachyonDB is a highly optimized vector database engine and AI-native ingestion platform built entirely from scratch in Rust. Designed with strict systems architecture principles, it focuses on memory efficiency, zero-cost abstractions, multi-threaded CPU saturation, and blazingly fast approximate nearest neighbor (ANN) search capabilities.
 
 Unlike standard vector databases that only accept floating-point arrays, **TachyonDB is an end-to-end platform**. It can ingest raw files (`.pdf`, `.docx`, `.xlsx`, `.txt`), automatically chunk them, embed them using neural networks (like OpenAI or local ONNX models), and build a highly concurrent HNSW graph index in seconds.
 
-## 🚀 Core Features
+## Core Features
 
 - **Blazing Fast HNSW Architecture**: Navigates multi-layered undirected graphs for highly optimized sub-linear $O(\log N)$ search complexity.
 - **Rayon-Powered Parallel Construction**: Batch ingestion operations are heavily parallelized across all CPU cores using `rayon` and granular `parking_lot::RwLock` interior mutability.
@@ -56,7 +56,7 @@ graph TD
     end
 ```
 
-## 📊 Benchmarks
+##  Benchmarks
 
 Our custom-built, Rayon-parallelized HNSW algorithm achieves production-grade performance in pure Rust without external C++ bindings. Tested with `ef_construction=100`, `M=16`, and `ef_search=50` (using `target-cpu=native` for SIMD auto-vectorization):
 
