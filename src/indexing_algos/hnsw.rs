@@ -30,19 +30,12 @@ impl Ord for OrderedFloat {
 }
 
 pub struct HnswIndex<M: DistanceMetric> {
-    pub index: Arc<Index<M>>
+    _marker: std::marker::PhantomData<M>,
 }
 
 // 1. Struct-specific methods (Internal helpers)
 impl<M: DistanceMetric> HnswIndex<M> {
-    pub fn new(index: Arc<Index<M>>) -> Self {
-        Self {
-            index,
-        }
-    }
-
     fn search_layer(
-        &self,
         collection: &Collection,
         query: &[f32],
         entry_points: &[usize],
@@ -92,7 +85,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
         results
     }
 
-    fn random_layer(&self) -> usize {
+    fn random_layer() -> usize {
         let mut rng = rand::thread_rng();
         let r: f32 = rng.gen_range(0.00001..1.0);
         let m_l = 1.0 / (M as f32).ln();
@@ -102,10 +95,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
 
 // 2. Trait Implementation (The Public API)
 impl<M: DistanceMetric> Indexing for HnswIndex<M> {
-    fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError> {
-        let index = &self.index;
-        let collection = index.collection_ptr.read().unwrap();
-        
+    fn search(collection: &Collection, query: &[f32]) -> Result<Option<(String, f32)>, RecordError> {
         let mut current_node_id = match &collection.entry_point {
             Some(id) => *id,
             None => return Err(RecordError::RecordNotFound("No entry point found, the collection is empty.".to_string())),
@@ -136,7 +126,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         }
 
         // Phase 2: Beam search on layer 0
-        let results = self.search_layer(&collection, query, &[current_node_id], 0, EF_SEARCH);
+        let results = Self::search_layer(collection, query, &[current_node_id], 0, EF_SEARCH);
         let closest = results.into_iter().min_by(|a, b| a.0.cmp(&b.0));
         
         match closest {
@@ -145,10 +135,8 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         }
     }
 
-    fn insert(&mut self, mut record: Record) {
-        let node_max_layer = self.random_layer();
-        let index = &self.index;
-        let mut collection = index.collection_ptr.write().unwrap();
+    fn insert(collection: &mut Collection, mut record: Record) {
+        let node_max_layer = Self::random_layer();
 
         // Expand the layers array if node_max_layer > original max_layer
         if record.layers.len() <= node_max_layer {
