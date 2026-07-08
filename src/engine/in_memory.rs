@@ -191,7 +191,7 @@ mod tests {
             total_search_time += start_search.elapsed();
         }
 
-        println!("✅ Executed {} queries.", num_queries);
+        println!("[+] Executed {} queries.", num_queries);
         println!("   Average search time: {:?}", total_search_time / num_queries as u32);
     }
 
