@@ -4,6 +4,8 @@
   Phoenix-Vector
 </h1>
 
+<img src="phx-vector.png" alt="Phoenix Vector Logo" width="300" style="margin-bottom: 20px;" />
+
 **A Production-Grade, Blazingly Fast, Multi-Threaded Vector Database Engine in Pure Rust.**
 
 [![Rust](https://img.shields.io/badge/Built_with-Rust-6A0DAD.svg?style=for-the-badge&logo=rust)]()
