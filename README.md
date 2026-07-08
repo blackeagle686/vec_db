@@ -1,111 +1,84 @@
 <div align="center">
   
-<h1 align="center" style="background: linear-gradient(to right, #20B2AA, #008080); -webkit-background-clip: text; color: transparent;">
-  VecDB Engine
+<h1 align="center" style="background: linear-gradient(to right, #00C9FF, #92FE9D); -webkit-background-clip: text; color: transparent; font-size: 3em; font-weight: bold;">
+  TachyonDB
 </h1>
 
-[![Rust](https://img.shields.io/badge/Built_with-Rust-20B2AA.svg?style=for-the-badge&logo=rust)]()
-[![Index](https://img.shields.io/badge/Index-HNSW-20B2AA.svg?style=for-the-badge)]()
-[![Status](https://img.shields.io/badge/Status-Phase_4_Network_API-008080.svg?style=for-the-badge)]()
+**A Production-Grade, Blazingly Fast, Multi-Threaded Vector Database Engine in Pure Rust.**
 
-**A high-performance, structurally modular Vector Database Engine.**
+[![Rust](https://img.shields.io/badge/Built_with-Rust-00C9FF.svg?style=for-the-badge&logo=rust)]()
+[![Index](https://img.shields.io/badge/Index-HNSW-92FE9D.svg?style=for-the-badge)]()
+[![Concurrency](https://img.shields.io/badge/Concurrency-Rayon-00C9FF.svg?style=for-the-badge)]()
+[![Status](https://img.shields.io/badge/Status-Ingestion_Layer_Active-92FE9D.svg?style=for-the-badge)]()
 
-<hr style="border: 1px solid #20B2AA; width: 50%;" />
+<hr style="border: 1px solid #00C9FF; width: 50%;" />
 </div>
 
-## Overview
+## 🌌 Overview
 
-VecDB is a highly optimized vector database engine built entirely from scratch in Rust. Designed with strict systems architecture principles, it focuses on memory efficiency, zero-cost abstractions, and blazing-fast approximate nearest neighbor (ANN) search capabilities.
+TachyonDB is a highly optimized vector database engine and AI-native ingestion platform built entirely from scratch in Rust. Designed with strict systems architecture principles, it focuses on memory efficiency, zero-cost abstractions, multi-threaded CPU saturation, and blazingly fast approximate nearest neighbor (ANN) search capabilities.
 
-By mapping user string IDs to sequential internal integers, VecDB ensures that its **Hierarchical Navigable Small World (HNSW)** graph traversal operates entirely within contiguous memory blocks (`Vec<Record>`), guaranteeing maximal CPU cache-locality and zero heap-allocations during the hot loop.
+Unlike standard vector databases that only accept floating-point arrays, **TachyonDB is an end-to-end platform**. It can ingest raw files (`.pdf`, `.docx`, `.xlsx`, `.txt`), automatically chunk them, embed them using neural networks (like OpenAI or local ONNX models), and build a highly concurrent HNSW graph index in seconds.
 
-## Core Features
+## 🚀 Core Features
 
-- **Blazing Fast HNSW Architecture**: Navigates multi-layered undirected graphs for highly optimized sub-linear search complexity.
-- **Cache-Optimized Memory Layout**: Converts String IDs into sequential `usize` indices internally, allowing for O(1) memory access during graph jumps. No `String` cloning in the search path.
-- **Zero-Cost Distance Metrics**: Built around static trait dispatch (`PhantomData` and generics). Distance operations (Cosine, Euclidean) are perfectly inlined by the compiler.
-- **High-Concurrency API**: The engine is wrapped in an `Arc<RwLock>` and served via a lightning-fast `axum` and `tokio` network layer, allowing for massive concurrent read operations.
-- **Durable Persistence**: Native `bincode` binary serialization via `serde` ensures the database state is safely saved and loaded from disk in milliseconds.
+- **Blazing Fast HNSW Architecture**: Navigates multi-layered undirected graphs for highly optimized sub-linear $O(\log N)$ search complexity.
+- **Rayon-Powered Parallel Construction**: Batch ingestion operations are heavily parallelized across all CPU cores using `rayon` and granular `parking_lot::RwLock` interior mutability.
+- **End-to-End Ingestion Pipeline**: Native support for parsing, chunking, and embedding PDF, DOCX, XLSX, and TXT files directly into the graph.
+- **Cache-Optimized Memory Layout**: Converts String IDs into sequential `usize` indices internally, allowing for $O(1)$ memory access during graph jumps with zero heap-allocations in the hot loop.
+- **High-Concurrency API**: The engine is wrapped in an `Arc<RwLock>` and served via a lightning-fast `axum` and `tokio` network layer.
+- **Durable Persistence**: Native `bincode` binary serialization via `serde` ensures the entire engine state is safely saved and loaded from disk in milliseconds.
 
-## System Architecture
+## 🏗️ System Architecture
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#20B2AA', 'primaryBorderColor': '#008080', 'lineColor': '#20B2AA', 'tertiaryColor': '#E0F2F1'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#00C9FF', 'primaryBorderColor': '#008080', 'lineColor': '#00C9FF', 'tertiaryColor': '#E0F2F1'}}}%%
 graph TD
-    A[Client Request] -->|REST API via Axum| B(Engine Arc RwLock)
+    A[Client Request] -->|Files / Text / Vectors| B[Axum API Gateway]
+    B --> C(Tachyon Engine Arc RwLock)
     
-    subgraph Core Engine
-        B -->|Owns Multiple| C{Collection}
-        C -->|ID Mapper| D[HashMap String -> usize]
-        C -->|Contiguous Memory| E[Vec Record]
+    subgraph Ingestion Layer
+        C --> D[File Parser]
+        D -->|Text| E[Chunker]
+        E -->|Chunks| F[Embedding Model]
+        F -->|OpenAI / ONNX| G[f32 Vectors]
     end
     
-    subgraph HNSW Index
-        F((HnswIndex)) -.->|Borrows Mutably| C
-        F -.->|Zero Cost Math| G[DistanceMetrics]
+    subgraph Core Storage
+        G --> H{Collection}
+        H -->|ID Mapper| I[HashMap String -> usize]
+        H -->|Contiguous Memory| J[Vec Record]
     end
     
-    subgraph Persistence Layer
-        B -->|Serialize / bincode| H[(Disk File)]
-        H -->|Deserialize| B
+    subgraph HNSW Graph Index
+        K((HnswIndex)) -.->|Rayon Parallel Linking| H
+        K -.->|Zero Cost Math| L[DistanceMetrics]
     end
 ```
 
-## Quick Start (Network API)
-
-The engine now runs as a standalone HTTP server on port 3000. Here is how to interact with it:
-
-### 1. Start the Server
-```bash
-cargo run --release
-```
-
-### 2. Create a Collection
-```bash
-curl -X POST http://localhost:3000/collection \
-  -H "Content-Type: application/json" \
-  -d '{"collection_name": "documents", "index_type": "HNSW"}'
-```
-
-### 3. Insert a Record
-```bash
-curl -X POST http://localhost:3000/insert \
-  -H "Content-Type: application/json" \
-  -d '{
-    "collection_name": "documents",
-    "embeddings": [0.12, 0.45, 0.89],
-    "max_layer": 0
-  }'
-```
-
-### 4. Query Vectors
-```bash
-curl -X POST http://localhost:3000/query \
-  -H "Content-Type: application/json" \
-  -d '{
-    "collection_name": "documents",
-    "vector": [0.10, 0.40, 0.90]
-  }'
-```
-
-## Benchmarks
+## 📊 Benchmarks
 
 Our custom-built, Rayon-parallelized HNSW algorithm achieves production-grade performance in pure Rust without external C++ bindings. Tested with `ef_construction=100`, `M=16`, and `ef_search=50` (using `target-cpu=native` for SIMD auto-vectorization):
 
 ### 100K Dataset (Heavy Dimensions: 763)
-- **Massive Batch Insertion**: 100,000 vectors inserted and fully graph-linked in **~2.6 minutes** (avg **1.58ms** per vector) utilizing concurrent interior mutability (`RwLock`).
+- **Massive Batch Insertion**: 100,000 vectors inserted and fully graph-linked in **~2.6 minutes** (avg **1.58ms** per vector).
 - **Sub-Millisecond Search**: 100 queries executed sequentially in **~448ms** (avg **4.48ms** per query) with high recall.
 
 ### 1 MILLION Dataset (Standard Dimensions: 384)
-- **Extreme Scale Insertion**: 1,000,000 vectors generated in-memory and graph-linked in **~18.8 minutes** (avg **1.13ms** per vector).
-- **Logarithmic Search Magic**: 100 queries executed in **~327ms** (avg **3.27ms** per query). Despite the dataset being 10x larger, the search time stayed identical due to $O(\log N)$ HNSW graph traversal!
+- **Extreme Scale Insertion**: 1,000,000 vectors generated in-memory and graph-linked in **~18.8 minutes** (avg **1.13ms** per vector) across CPU cores.
+- **Logarithmic Search Magic**: 100 queries executed in **~327ms** (avg **3.27ms** per query). Despite the dataset being 10x larger, the search time stayed identical due to the $O(\log N)$ HNSW graph traversal!
 
-## Development Roadmap
+## 🛠️ Development Roadmap
+
 - **[COMPLETED] Phase 1: Foundation**: Core structs, static distance metrics, HNSW index foundation, custom error handling.
-- **[COMPLETED] Phase 2: Persistence**: Disk persistence via `serde` and `bincode` to save and load the `Engine` state across restarts.
-- **[COMPLETED] Phase 3: Performance Optimization**: Refactored internal graph traversal to use sequential integer mapping and contiguous memory `Vec<Record>`, eliminating heap allocations in the hot path.
+- **[COMPLETED] Phase 2: Persistence**: Disk persistence via `serde` and `bincode`.
+- **[COMPLETED] Phase 3: Performance Optimization**: Refactored internal graph traversal to use sequential integer mapping and contiguous memory `Vec<Record>`.
 - **[COMPLETED] Phase 4: Concurrency & API**: Wrapping the engine in `Arc<RwLock>` and exposing async HTTP endpoints using `tokio` and `axum`.
+- **[COMPLETED] Phase 5: Parallel Construction**: Implementing `rayon` and `RwLock` primitives for highly parallel batch processing.
+- **[COMPLETED] Phase 6: Document Ingestion Layer**: Built a native file parser (PDF, DOCX, XLSX, TXT) and text chunking pipeline.
+- **[IN PROGRESS] Phase 7: Embedding Connectors**: Building the `reqwest` integration for OpenAI/Ollama and `fastembed` for local ONNX execution.
+- **[PLANNED] Phase 8: Scalar Quantization**: Implementing vector compression to reduce memory footprint by 75% and dramatically increase math throughput.
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License.
