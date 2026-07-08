@@ -118,7 +118,57 @@ impl EngineTrait for Engine {
 
         bincode::deserialize(&bytes)
         .map_err(|e| EngineError::EngineLoadFailed(e.to_string()))
-    }
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::time::Instant;
+    use rand::Rng;
 
+    #[test]
+    fn test_hnsw_benchmark() {
+        println!(" Starting HNSW Vector DB benchmark...");
+
+        let mut engine = Engine::new("benchmark_db");
+        engine.create_collection("vectors", Some("HNSW")).unwrap();
+        let collection = engine.get_collection_mut("vectors").unwrap();
+
+        let num_vectors = 10_000;
+        let dim = 128;
+        let mut rng = rand::thread_rng();
+
+        println!("Generating and inserting {} random vectors ({} dimensions)...", num_vectors, dim);
+        
+        let start_insert = Instant::now();
+        for _ in 0..num_vectors {
+            let mut vector = Vec::with_capacity(dim);
+            for _ in 0..dim {
+                vector.push(rng.gen_range(-1.0..1.0));
+            }
+            
+            collection.insert(vector, 0, None).unwrap();
+        }
+        let duration_insert = start_insert.elapsed();
+        println!("✅ Finished inserting {} vectors in {:?}", num_vectors, duration_insert);
+        println!("   Average insert time: {:?}", duration_insert / num_vectors);
+
+        println!("\n🔍 Running queries...");
+        let num_queries = 100;
+        let mut total_search_time = std::time::Duration::new(0, 0);
+
+        for _ in 0..num_queries {
+            let mut query = Vec::with_capacity(dim);
+            for _ in 0..dim {
+                query.push(rng.gen_range(-1.0..1.0));
+            }
+
+            let start_search = Instant::now();
+            let _result = collection.query(query).unwrap();
+            total_search_time += start_search.elapsed();
+        }
+
+        println!("✅ Executed {} queries.", num_queries);
+        println!("   Average search time: {:?}", total_search_time / num_queries as u32);
+    }
+}
