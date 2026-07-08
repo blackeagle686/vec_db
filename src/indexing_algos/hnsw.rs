@@ -1,7 +1,8 @@
 use crate::domain::entities::{Collection, DistanceMetric, Record, RecordError};
 use crate::indexing_algos::indexing::Indexing; 
 use rand::Rng;
-use std::collections::{BinaryHeap, HashSet};
+use std::collections::BinaryHeap;
+use rustc_hash::FxHashSet;
 use std::cmp::{Reverse, Ordering};
 
 const M: usize = 16;
@@ -28,6 +29,28 @@ impl Ord for OrderedFloat {
     }
 }
 
+pub struct SearchContext {
+    pub visited: FxHashSet<usize>,
+    pub candidates: BinaryHeap<Reverse<(OrderedFloat, usize)>>,
+    pub results: BinaryHeap<(OrderedFloat, usize)>,
+}
+
+impl SearchContext {
+    pub fn new() -> Self {
+        Self {
+            visited: FxHashSet::default(),
+            candidates: BinaryHeap::new(),
+            results: BinaryHeap::new(),
+        }
+    }
+    
+    pub fn clear(&mut self) {
+        self.visited.clear();
+        self.candidates.clear();
+        self.results.clear();
+    }
+}
+
 pub struct HnswIndex<M: DistanceMetric> {
     _marker: std::marker::PhantomData<M>,
 }
@@ -40,20 +63,19 @@ impl<M: DistanceMetric> HnswIndex<M> {
         entry_points: &[usize],
         layer: usize,
         ef: usize,
-    ) -> BinaryHeap<(OrderedFloat, usize)> {
-        let mut visited = HashSet::new();
-        let mut candidates = BinaryHeap::new(); // min-heap using Reverse
-        let mut results = BinaryHeap::new(); // max-heap
+        ctx: &mut SearchContext,
+    ) {
+        ctx.clear();
 
         for &ep in entry_points {
-            visited.insert(ep);
+            ctx.visited.insert(ep);
             let dist = M::calculate(&collection.vectors[ep].embeddings, query);
-            candidates.push(Reverse((OrderedFloat(dist), ep)));
-            results.push((OrderedFloat(dist), ep));
+            ctx.candidates.push(Reverse((OrderedFloat(dist), ep)));
+            ctx.results.push((OrderedFloat(dist), ep));
         }
 
-        while let Some(Reverse((c_dist, c_id))) = candidates.pop() {
-            let f_dist = results.peek().unwrap().0;
+        while let Some(Reverse((c_dist, c_id))) = ctx.candidates.pop() {
+            let f_dist = ctx.results.peek().unwrap().0;
 
             if c_dist > f_dist {
                 break;
@@ -65,23 +87,21 @@ impl<M: DistanceMetric> HnswIndex<M> {
             }
 
             for &neighbor_id in &curr_node.layers[layer] {
-                if visited.insert(neighbor_id) {
+                if ctx.visited.insert(neighbor_id) {
                     let neighbor = &collection.vectors[neighbor_id];
                     let dist = M::calculate(&neighbor.embeddings, query);
-                    let f_dist = results.peek().unwrap().0;
+                    let f_dist = ctx.results.peek().unwrap().0;
                     
-                    if results.len() < ef || dist < f_dist.0 {
-                        candidates.push(Reverse((OrderedFloat(dist), neighbor_id)));
-                        results.push((OrderedFloat(dist), neighbor_id));
-                        if results.len() > ef {
-                            results.pop();
+                    if ctx.results.len() < ef || dist < f_dist.0 {
+                        ctx.candidates.push(Reverse((OrderedFloat(dist), neighbor_id)));
+                        ctx.results.push((OrderedFloat(dist), neighbor_id));
+                        if ctx.results.len() > ef {
+                            ctx.results.pop();
                         }
                     }
                 }
             }
         }
-
-        results
     }
 
     fn random_layer() -> usize {
