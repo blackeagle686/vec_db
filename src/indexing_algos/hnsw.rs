@@ -24,6 +24,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
             let mut moved = false;
 
             for neighbor_id in &curr_node.layers[layer] {
+                
                 if layer >= curr_node.layers.len() { continue; }
                 let neighbor = &collection.vectors[*neighbor_id];
                 let dist = M::calculate(&neighbor.embeddings, query);
