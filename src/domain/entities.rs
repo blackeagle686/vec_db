@@ -73,23 +73,40 @@ pub enum EngineError{
 
 // ------------------------------ RECORD ------------------------------
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Record {
     pub id: String,
     pub mapped_id: usize, 
     pub embeddings: Vec<f32>,
     pub metadata: Option<HashMap<String, String>>,
-    pub layers: Vec<Vec<usize>>, 
+    pub layers: Vec<parking_lot::RwLock<Vec<usize>>>, 
+}
+
+impl Clone for Record {
+    fn clone(&self) -> Self {
+        let layers = self.layers.iter().map(|l| parking_lot::RwLock::new(l.read().clone())).collect();
+        Record {
+            id: self.id.clone(),
+            mapped_id: self.mapped_id,
+            embeddings: self.embeddings.clone(),
+            metadata: self.metadata.clone(),
+            layers,
+        }
+    }
 }
 
 impl Record {
     pub fn new(id: String, embeddings: Vec<f32>, metadata: Option<HashMap<String, String>>, max_layer: usize) -> Self {
+        let mut layers = Vec::with_capacity(max_layer + 1);
+        for _ in 0..=max_layer {
+            layers.push(parking_lot::RwLock::new(Vec::new()));
+        }
         Record {
             id,
             embeddings,
             mapped_id: 0, // Placeholder, will be updated when inserted into collection
             metadata,
-            layers: vec![vec![]; max_layer + 1],
+            layers,
         }
     }
 }
@@ -109,6 +126,7 @@ pub struct Collection {
 
 pub trait CollectionTrait {
     fn insert(&mut self, embeddings: Vec<f32>, max_layer: usize, metadata: Option<HashMap<String, String>>) -> Result<(), RecordError>; 
+    fn insert_batch(&mut self, records: Vec<(String, Vec<f32>, Option<HashMap<String, String>>)>) -> Result<(), RecordError>;
     fn query(&self, query_vector: Vec<f32>) -> Result<Option<(String, f32)>, RecordError>;
     fn get(&self, id: &str) -> Result<&Record, RecordError>;
     fn delete(&mut self, id: &str) -> Result<(), RecordError>;
