@@ -29,7 +29,7 @@ Unlike standard vector databases that only accept floating-point arrays, **Tachy
 - **High-Concurrency API**: The engine is wrapped in an `Arc<RwLock>` and served via a lightning-fast `axum` and `tokio` network layer.
 - **Durable Persistence**: Native `bincode` binary serialization via `serde` ensures the entire engine state is safely saved and loaded from disk in milliseconds.
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#00C9FF', 'primaryBorderColor': '#008080', 'lineColor': '#00C9FF', 'tertiaryColor': '#E0F2F1'}}}%%
@@ -68,7 +68,7 @@ Our custom-built, Rayon-parallelized HNSW algorithm achieves production-grade pe
 - **Extreme Scale Insertion**: 1,000,000 vectors generated in-memory and graph-linked in **~18.8 minutes** (avg **1.13ms** per vector) across CPU cores.
 - **Logarithmic Search Magic**: 100 queries executed in **~327ms** (avg **3.27ms** per query). Despite the dataset being 10x larger, the search time stayed identical due to the $O(\log N)$ HNSW graph traversal!
 
-## 🛠️ Development Roadmap
+##  Development Roadmap
 
 - **[COMPLETED] Phase 1: Foundation**: Core structs, static distance metrics, HNSW index foundation, custom error handling.
 - **[COMPLETED] Phase 2: Persistence**: Disk persistence via `serde` and `bincode`.
@@ -79,6 +79,6 @@ Our custom-built, Rayon-parallelized HNSW algorithm achieves production-grade pe
 - **[IN PROGRESS] Phase 7: Embedding Connectors**: Building the `reqwest` integration for OpenAI/Ollama and `fastembed` for local ONNX execution.
 - **[PLANNED] Phase 8: Scalar Quantization**: Implementing vector compression to reduce memory footprint by 75% and dramatically increase math throughput.
 
-## 📄 License
+##  License
 
 This project is licensed under the MIT License.
