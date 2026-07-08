@@ -30,6 +30,26 @@ impl CollectionTrait for Collection{
         Ok(())
     }
     
+    fn insert_batch(
+        &mut self,
+        records: Vec<(String, Vec<f32>, Option<HashMap<String, String>>)>
+    ) -> Result<(), RecordError> {
+        let mut to_insert = Vec::with_capacity(records.len());
+        for (id, embeddings, metadata) in records {
+            // max_layer 0 is a placeholder, HNSW will generate the correct one
+            to_insert.push(Record::new(id, embeddings, metadata, 0)); 
+        }
+
+        match self.indexing_type.to_uppercase().as_str() {
+            "HNSW" => {
+                HnswIndex::<CosineDistance>::insert_batch(self, to_insert);
+            },
+            _ => return Err(RecordError::IndexingTypeNotFound(self.indexing_type.clone())),
+        }
+        
+        Ok(())
+    }
+    
     fn query(&self, query_vector: Vec<f32>) -> Result<Option<(String, f32)>, RecordError>{
         let res = match self.indexing_type.to_uppercase().as_str() {
             "HNSW" => HnswIndex::<CosineDistance>::search(self, &query_vector)?,
@@ -141,15 +161,17 @@ mod tests {
 
         println!("Generating and inserting {} random vectors ({} dimensions)...", num_vectors, dim);
         
-        let start_insert = Instant::now();
-        for _ in 0..num_vectors {
+        let mut batch = Vec::with_capacity(num_vectors);
+        for i in 0..num_vectors {
             let mut vector = Vec::with_capacity(dim);
             for _ in 0..dim {
                 vector.push(rng.gen_range(-1.0..1.0));
             }
-            
-            collection.insert(vector, 0, None).unwrap();
+            batch.push((format!("vec_{}", i), vector, None));
         }
+        
+        let start_insert = Instant::now();
+        collection.insert_batch(batch).unwrap();
         let duration_insert = start_insert.elapsed();
         println!("✅ Finished inserting {} vectors in {:?}", num_vectors, duration_insert);
         println!("   Average insert time: {:?}", duration_insert / num_vectors);
