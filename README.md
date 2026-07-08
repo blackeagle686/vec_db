@@ -58,7 +58,14 @@ graph TD
 
 ##  Benchmarks
 
-Our custom-built, Rayon-parallelized HNSW algorithm achieves production-grade performance in pure Rust without external C++ bindings. Tested with `ef_construction=100`, `M=16`, and `ef_search=50` (using `target-cpu=native` for SIMD auto-vectorization):
+Our custom-built, Rayon-parallelized HNSW algorithm achieves production-grade performance in pure Rust without external C++ bindings. 
+
+**Testing Hardware Specifications:**
+- **CPU**: Intel Core i5 (10th Gen)
+- **RAM**: 12 GB
+- **GPU**: None (Pure CPU SIMD Execution)
+
+Tested with `ef_construction=100`, `M=16`, and `ef_search=50` (using `target-cpu=native` for SIMD auto-vectorization):
 
 ### 100K Dataset (Heavy Dimensions: 763)
 - **Massive Batch Insertion**: 100,000 vectors inserted and fully graph-linked in **~2.6 minutes** (avg **1.58ms** per vector).
