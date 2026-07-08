@@ -168,7 +168,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
 
         // Expand the layers array if node_max_layer > original max_layer
         if record.layers.len() <= node_max_layer {
-            record.layers.resize(node_max_layer + 1, vec![]);
+            record.layers.resize_with(node_max_layer + 1, || parking_lot::RwLock::new(Vec::new()));
         }
         
         record.mapped_id = collection.next_id;
