@@ -5,6 +5,7 @@ use std::collections::BinaryHeap;
 use rustc_hash::FxHashSet;
 use std::cmp::{Reverse, Ordering};
 use std::cell::RefCell;
+use rayon::prelude::*;
 
 const M: usize = 16;
 const M_MAX_0: usize = 32;
@@ -91,7 +92,7 @@ impl<M: DistanceMetric> HnswIndex<M> {
                 continue;
             }
 
-            for &neighbor_id in &curr_node.layers[layer] {
+            for &neighbor_id in &*curr_node.layers[layer].read() {
                 if ctx.visited.insert(neighbor_id) {
                     let neighbor = &collection.vectors[neighbor_id];
                     let dist = M::calculate(&neighbor.embeddings, query);
@@ -135,7 +136,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
                 let mut best_dist = M::calculate(&curr_node.embeddings, query);
                 
                 if current_layer < curr_node.layers.len() {
-                    for &neighbor_id in &curr_node.layers[current_layer] {
+                    for &neighbor_id in &*curr_node.layers[current_layer].read() {
                         let neighbor = &collection.vectors[neighbor_id];
                         let dist = M::calculate(&neighbor.embeddings, query);
                         if dist < best_dist {
@@ -193,7 +194,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
                 let mut best_dist = M::calculate(&curr_node.embeddings, &record.embeddings);
                 
                 if current_layer < curr_node.layers.len() {
-                    for &neighbor_id in &curr_node.layers[current_layer] {
+                    for &neighbor_id in &*curr_node.layers[current_layer].read() {
                         let neighbor = &collection.vectors[neighbor_id];
                         let dist = M::calculate(&neighbor.embeddings, &record.embeddings);
                         if dist < best_dist {
@@ -234,13 +235,14 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
                 neighbors.truncate(M);
                 let neighbor_ids: Vec<usize> = neighbors.into_iter().map(|(_, id)| id).collect();
 
-                collection.vectors[new_id].layers[layer] = neighbor_ids.clone();
+                collection.vectors[new_id].layers[layer] = parking_lot::RwLock::new(neighbor_ids.clone());
                 
                 // Add reverse links and mark nodes that need shrinking
                 let mut shrink_tasks = vec![];
                 for &n_id in &neighbor_ids {
-                    collection.vectors[n_id].layers[layer].push(new_id);
-                    if collection.vectors[n_id].layers[layer].len() > m_max {
+                    let mut n_layer = collection.vectors[n_id].layers[layer].write();
+                    n_layer.push(new_id);
+                    if n_layer.len() > m_max {
                         shrink_tasks.push(n_id);
                     }
                 }
@@ -249,6 +251,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
                 for n_id in shrink_tasks {
                     let n_emb = collection.vectors[n_id].embeddings.clone();
                     let mut connections: Vec<(OrderedFloat, usize)> = collection.vectors[n_id].layers[layer]
+                        .read()
                         .iter()
                         .map(|&id| {
                             let dist = M::calculate(&collection.vectors[id].embeddings, &n_emb);
@@ -257,7 +260,7 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
                         .collect();
                     connections.sort(); // ascending distance
                     connections.truncate(m_max);
-                    collection.vectors[n_id].layers[layer] = connections.into_iter().map(|(_, id)| id).collect();
+                    *collection.vectors[n_id].layers[layer].write() = connections.into_iter().map(|(_, id)| id).collect();
                 }
             }
         });
@@ -265,6 +268,121 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         if node_max_layer > collection.max_layer {
             collection.max_layer = node_max_layer;
             collection.entry_point = Some(new_id);
+        }
+    }
+
+    fn insert_batch(collection: &mut Collection, mut records: Vec<Record>) {
+        if records.is_empty() { return; }
+
+        let mut new_nodes = Vec::with_capacity(records.len());
+        let mut max_layer_in_batch = 0;
+        let mut best_entry_point = 0;
+
+        for mut record in records {
+            let node_max_layer = Self::random_layer();
+            if record.layers.len() <= node_max_layer {
+                record.layers.resize_with(node_max_layer + 1, || parking_lot::RwLock::new(Vec::new()));
+            }
+            record.mapped_id = collection.next_id;
+            collection.id_map.insert(record.id.clone(), record.mapped_id);
+            collection.next_id += 1;
+            
+            if node_max_layer > max_layer_in_batch {
+                max_layer_in_batch = node_max_layer;
+                best_entry_point = record.mapped_id;
+            }
+
+            new_nodes.push((record.mapped_id, node_max_layer));
+            collection.vectors.push(record);
+        }
+
+        if collection.entry_point.is_none() {
+            collection.entry_point = Some(new_nodes[0].0);
+            collection.max_layer = new_nodes[0].1;
+        }
+
+        let collection_ref = &*collection; // Immutable reference for Rayon
+        let current_ep = collection_ref.entry_point.unwrap();
+        let current_max_layer = collection_ref.max_layer;
+
+        new_nodes.par_iter().for_each(|&(new_id, node_max_layer)| {
+            if new_id == current_ep { return; } // Skip the first entry point if it was just created
+
+            let mut current_node_id = current_ep;
+            let mut current_layer = current_max_layer;
+
+            // Phase 1: Greedily search from max_layer down to node_max_layer + 1
+            while current_layer > node_max_layer {
+                let mut changed = true;
+                while changed {
+                    changed = false;
+                    let curr_node = &collection_ref.vectors[current_node_id];
+                    let mut best_dist = M::calculate(&curr_node.embeddings, &collection_ref.vectors[new_id].embeddings);
+                    
+                    if current_layer < curr_node.layers.len() {
+                        for &neighbor_id in &*curr_node.layers[current_layer].read() {
+                            let neighbor = &collection_ref.vectors[neighbor_id];
+                            let dist = M::calculate(&neighbor.embeddings, &collection_ref.vectors[new_id].embeddings);
+                            if dist < best_dist {
+                                best_dist = dist;
+                                current_node_id = neighbor_id;
+                                changed = true;
+                            }
+                        }
+                    }
+                }
+                if current_layer == 0 { break; }
+                current_layer -= 1;
+            }
+
+            let mut ep = vec![current_node_id];
+            let max_layer_to_link = std::cmp::min(current_max_layer, node_max_layer);
+
+            SEARCH_CTX.with(|ctx_cell| {
+                let mut ctx = ctx_cell.borrow_mut();
+                for layer in (0..=max_layer_to_link).rev() {
+                    Self::search_layer(collection_ref, &collection_ref.vectors[new_id].embeddings, &ep, layer, EF_CONSTRUCTION, &mut ctx);
+                    let m_max = if layer == 0 { M_MAX_0 } else { M };
+                    
+                    let mut neighbors: Vec<(OrderedFloat, usize)> = ctx.results.drain().collect();
+                    neighbors.sort_by(|a, b| a.0.cmp(&b.0));
+                    ep = neighbors.iter().map(|&(_, id)| id).collect();
+                    neighbors.truncate(M);
+                    let neighbor_ids: Vec<usize> = neighbors.into_iter().map(|(_, id)| id).collect();
+
+                    *collection_ref.vectors[new_id].layers[layer].write() = neighbor_ids.clone();
+                    
+                    let mut shrink_tasks = vec![];
+                    for &n_id in &neighbor_ids {
+                        let mut n_layer = collection_ref.vectors[n_id].layers[layer].write();
+                        n_layer.push(new_id);
+                        if n_layer.len() > m_max {
+                            shrink_tasks.push(n_id);
+                        }
+                    }
+
+                    for n_id in shrink_tasks {
+                        let n_emb = collection_ref.vectors[n_id].embeddings.clone();
+                        let mut connections: Vec<(OrderedFloat, usize)> = collection_ref.vectors[n_id].layers[layer]
+                            .read()
+                            .iter()
+                            .map(|&id| {
+                                let dist = M::calculate(&collection_ref.vectors[id].embeddings, &n_emb);
+                                (OrderedFloat(dist), id)
+                            })
+                            .collect();
+                        connections.sort(); 
+                        connections.truncate(m_max);
+                        *collection_ref.vectors[n_id].layers[layer].write() = connections.into_iter().map(|(_, id)| id).collect();
+                    }
+                }
+            });
+        });
+
+        // Promote the highest node in the batch to entry point if it exceeds the current global max_layer
+        if max_layer_in_batch > collection.max_layer {
+            collection.max_layer = max_layer_in_batch;
+            collection.entry_point = Some(best_entry_point);
         }
     }
 }
