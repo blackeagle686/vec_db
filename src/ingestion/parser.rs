@@ -4,7 +4,7 @@ use std::io::Read;
 use zip::ZipArchive;
 use quick_xml::Reader;
 use quick_xml::events::Event;
-use calamine::{Reader as CalamineReader, open_workbook, Xlsx, DataType};
+use calamine::{Reader as CalamineReader, open_workbook, Xlsx, Data};
 
 pub fn parse_file(path: &str) -> Result<String, Box<dyn std::error::Error>> {
     let ext = Path::new(path)
@@ -36,7 +36,7 @@ fn parse_docx(path: &str) -> Result<String, Box<dyn std::error::Error>> {
     document_xml.read_to_string(&mut xml_content)?;
     
     let mut reader = Reader::from_str(&xml_content);
-    reader.trim_text(true);
+    reader.config_mut().trim_text(true);
     
     let mut text = String::new();
     let mut is_in_text = false;
@@ -50,8 +50,10 @@ fn parse_docx(path: &str) -> Result<String, Box<dyn std::error::Error>> {
                 is_in_text = false;
             },
             Ok(Event::Text(e)) if is_in_text => {
-                text.push_str(&e.unescape()?.into_owned());
-                text.push(' ');
+                if let Ok(s) = std::str::from_utf8(e.as_ref()) {
+                    text.push_str(s);
+                    text.push(' ');
+                }
             },
             Ok(Event::Start(ref e)) if e.name().as_ref() == b"w:p" => {
                 text.push('\n');
@@ -79,12 +81,15 @@ fn parse_xlsx(path: &str) -> Result<String, Box<dyn std::error::Error>> {
                 let mut row_texts = Vec::new();
                 for cell in row {
                     match cell {
-                        DataType::String(s) => row_texts.push(s.to_string()),
-                        DataType::Float(f) => row_texts.push(f.to_string()),
-                        DataType::Int(i) => row_texts.push(i.to_string()),
-                        DataType::Bool(b) => row_texts.push(b.to_string()),
-                        DataType::DateTime(d) => row_texts.push(d.to_string()),
-                        _ => (),
+                        Data::String(s) => row_texts.push(s.to_string()),
+                        Data::Float(f) => row_texts.push(f.to_string()),
+                        Data::Int(i) => row_texts.push(i.to_string()),
+                        Data::Bool(b) => row_texts.push(b.to_string()),
+                        Data::DateTime(d) => row_texts.push(d.to_string()),
+                        Data::DateTimeIso(d) => row_texts.push(d.to_string()),
+                        Data::DurationIso(d) => row_texts.push(d.to_string()),
+                        Data::Error(e) => row_texts.push(format!("{:?}", e)),
+                        Data::Empty => (),
                     }
                 }
                 if !row_texts.is_empty() {
