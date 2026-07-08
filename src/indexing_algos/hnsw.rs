@@ -145,8 +145,9 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         }
 
         // Phase 2: Beam search on layer 0
-        let results = Self::search_layer(collection, query, &[current_node_id], 0, EF_SEARCH);
-        let closest = results.into_iter().min_by(|a, b| a.0.cmp(&b.0));
+        let mut ctx = SearchContext::new();
+        Self::search_layer(collection, query, &[current_node_id], 0, EF_SEARCH, &mut ctx);
+        let closest = ctx.results.into_iter().min_by(|a, b| a.0.cmp(&b.0));
         
         match closest {
             Some((dist, id)) => Ok(Some((collection.vectors[id].id.clone(), dist.0))),
@@ -206,13 +207,14 @@ impl<M: DistanceMetric> Indexing for HnswIndex<M> {
         // Phase 2: Beam search and link for layer <= node_max_layer
         let mut ep = vec![current_node_id];
         let max_layer_to_link = std::cmp::min(collection.max_layer, node_max_layer);
+        let mut ctx = SearchContext::new();
 
         for layer in (0..=max_layer_to_link).rev() {
-            let results = Self::search_layer(collection, &collection.vectors[new_id].embeddings, &ep, layer, EF_CONSTRUCTION);
+            Self::search_layer(collection, &collection.vectors[new_id].embeddings, &ep, layer, EF_CONSTRUCTION, &mut ctx);
             
             let m_max = if layer == 0 { M_MAX_0 } else { M };
             
-            let mut neighbors: Vec<(OrderedFloat, usize)> = results.into_iter().collect();
+            let mut neighbors: Vec<(OrderedFloat, usize)> = ctx.results.drain().collect();
             // Sort by distance (closest first)
             neighbors.sort_by(|a, b| a.0.cmp(&b.0));
             
