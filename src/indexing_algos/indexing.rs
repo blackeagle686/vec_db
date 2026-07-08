@@ -1,6 +1,6 @@
-use crate::domain::entities::{Record, RecordError};
+use crate::domain::entities::{Collection, Record, RecordError};
 
 pub trait Indexing {
-    fn insert(&mut self, record: Record);
-    fn search(&self, query: &[f32]) -> Result<Option<(String, f32)>, RecordError>;
+    fn insert(collection: &mut Collection, record: Record);
+    fn search(collection: &Collection, query: &[f32]) -> Result<Option<(String, f32)>, RecordError>;
 }
