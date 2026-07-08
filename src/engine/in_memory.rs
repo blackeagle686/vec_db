@@ -194,4 +194,54 @@ mod tests {
         println!("✅ Executed {} queries.", num_queries);
         println!("   Average search time: {:?}", total_search_time / num_queries as u32);
     }
+
+    #[test]
+    fn test_hnsw_1m_benchmark() {
+        println!(" Starting HNSW 1 Million Vector Benchmark...");
+
+        let mut engine = Engine::new("benchmark_1m_db");
+        engine.create_collection("vectors_1m", Some("HNSW")).unwrap();
+        let collection = engine.get_collection_mut("vectors_1m").unwrap();
+
+        let num_vectors = 1_000_000;
+        let dim = 384; // Standard MiniLM embedding size
+        let mut rng = rand::thread_rng();
+
+        println!("Generating {} random vectors ({} dimensions) in memory...", num_vectors, dim);
+        
+        let mut batch = Vec::with_capacity(num_vectors);
+        for i in 0..num_vectors {
+            let mut vector = Vec::with_capacity(dim);
+            for _ in 0..dim {
+                vector.push(rng.gen_range(-1.0..1.0));
+            }
+            batch.push((format!("vec_{}", i), vector, None));
+        }
+        
+        println!("Inserting batch...");
+        let start_insert = Instant::now();
+        collection.insert_batch(batch).unwrap();
+        let duration_insert = start_insert.elapsed();
+        
+        println!("✅ Finished inserting 1,000,000 vectors in {:?}", duration_insert);
+        println!("   Average insert time: {:?}", duration_insert / num_vectors as u32);
+
+        println!("\n🔍 Running queries on 1M dataset...");
+        let num_queries = 100;
+        let mut total_search_time = std::time::Duration::new(0, 0);
+
+        for _ in 0..num_queries {
+            let mut query = Vec::with_capacity(dim);
+            for _ in 0..dim {
+                query.push(rng.gen_range(-1.0..1.0));
+            }
+
+            let start_search = Instant::now();
+            let _result = collection.query(query).unwrap();
+            total_search_time += start_search.elapsed();
+        }
+
+        println!("✅ Executed {} queries.", num_queries);
+        println!("   Average search time: {:?}", total_search_time / num_queries as u32);
+    }
 }
