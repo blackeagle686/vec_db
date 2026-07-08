@@ -1,4 +1,6 @@
-use crate::{domain::{entities::{Collection, CollectionError, CollectionTrait,
+use crate::{
+    domain::{
+    entities::{Collection, CollectionError, CollectionTrait,
     Engine, EngineError, EngineTrait, 
     Index, Record, RecordError},
     metrics::CosineDistance},
