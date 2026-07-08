@@ -223,10 +223,10 @@ mod tests {
         collection.insert_batch(batch).unwrap();
         let duration_insert = start_insert.elapsed();
         
-        println!("✅ Finished inserting 1,000,000 vectors in {:?}", duration_insert);
+        println!("[+] Finished inserting 1,000,000 vectors in {:?}", duration_insert);
         println!("   Average insert time: {:?}", duration_insert / num_vectors as u32);
 
-        println!("\n🔍 Running queries on 1M dataset...");
+        println!("\n[+] Running queries on 1M dataset...");
         let num_queries = 100;
         let mut total_search_time = std::time::Duration::new(0, 0);
 
@@ -241,7 +241,7 @@ mod tests {
             total_search_time += start_search.elapsed();
         }
 
-        println!("✅ Executed {} queries.", num_queries);
+        println!("[+] Executed {} queries.", num_queries);
         println!("   Average search time: {:?}", total_search_time / num_queries as u32);
     }
 }
