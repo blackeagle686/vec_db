@@ -237,8 +237,3 @@ impl <M: DistanceMetric> IndexTrait<M> for Index<M> {
     }
 }
 
-// ------------------------------ Storage ------------------------------
-pub struct StorageEngine{
-    path: String,
-}
-
