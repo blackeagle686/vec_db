@@ -238,5 +238,7 @@ impl <M: DistanceMetric> IndexTrait<M> for Index<M> {
 }
 
 // ------------------------------ Storage ------------------------------
-pub str
+pub struct StorageEngine{
+    pbu 
+}
 
