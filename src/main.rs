@@ -4,6 +4,7 @@ pub mod indexing_algos;
 pub mod engine;
 pub mod app_state;
 pub mod ingestion;
+pub mod storage;
 
 use tokio::net::TcpListener;
 use crate::domain::entities::{Engine, EngineTrait};
