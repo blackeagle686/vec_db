@@ -236,3 +236,5 @@ impl <M: DistanceMetric> IndexTrait<M> for Index<M> {
         Ok(())
     }
 }
+
+// ------------------------------ Index ------------------------------
