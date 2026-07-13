@@ -276,6 +276,13 @@ mod tests {
         println!("[+] Finished inserting {} vectors in {:?}", num_vectors, duration_insert);
         println!("   Average insert time: {:?}", duration_insert / num_vectors as u32);
 
+        println!("\n[+] Shell Distribution (Total Shells: {}):", collection.shells.len());
+        let mut shell_keys: Vec<&i32> = collection.shells.keys().collect();
+        shell_keys.sort();
+        for key in shell_keys {
+            println!("   Shell ID {:>3}: {} vectors", key, collection.shells.get(key).unwrap().len());
+        }
+
         println!("\n[+] Running queries...");
         let num_queries = 100;
         let mut total_search_time = std::time::Duration::new(0, 0);
