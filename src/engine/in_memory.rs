@@ -122,10 +122,8 @@ impl EngineTrait for Engine {
 
     fn save_to_disk(&self) -> Result<(), EngineError> {
         let path = self.save_path.as_ref().ok_or_else(|| EngineError::EngineSaveFailed("Save path not set".to_string()))?;
-        let bytes = bincode::serialize(&self)
-        .map_err(|e| EngineError::EngineSaveFailed(e.to_string()))?;
-        fs::write(path, &bytes)
-        .map_err(|e| EngineError::EngineSaveFailed(e.to_string()))
+        let storage = crate::storage::engine::StorageEngine::new(path);
+        storage.save(self)
     }
 
     fn load_from_disk(path: &str) -> Result<Self, EngineError> {
@@ -133,11 +131,8 @@ impl EngineTrait for Engine {
             return Err(EngineError::EngineLoadFilePathNotFound("Save path not set".to_string()));
         }
         
-        let bytes = fs::read(path)
-        .map_err(|e| EngineError::EngineLoadFailed(e.to_string()))?;
-
-        bincode::deserialize(&bytes)
-        .map_err(|e| EngineError::EngineLoadFailed(e.to_string()))
+        let storage = crate::storage::engine::StorageEngine::new(path);
+        storage.load()
     }
 }
 
