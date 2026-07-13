@@ -3,7 +3,7 @@ use crate::{
     CollectionTrait, Engine, EngineError, 
     EngineTrait, Record, RecordError},
     metrics::CosineDistance},
-    indexing_algos::{hnsw::HnswIndex, indexing::Indexing}
+    indexing_algos::{hnsw::HnswIndex, shell::ShellIndex, indexing::Indexing}
 };
 use std::collections::HashMap;
 use bincode;
@@ -23,6 +23,9 @@ impl CollectionTrait for Collection{
         match self.indexing_type.to_uppercase().as_str() {
             "HNSW" => {
                 HnswIndex::<CosineDistance>::insert(self, record);
+            },
+            "SHELL" => {
+                ShellIndex::<CosineDistance>::insert(self, record);
             },
             _ => return Err(RecordError::IndexingTypeNotFound(self.indexing_type.clone())),
         }
@@ -44,6 +47,9 @@ impl CollectionTrait for Collection{
             "HNSW" => {
                 HnswIndex::<CosineDistance>::insert_batch(self, to_insert);
             },
+            "SHELL" => {
+                ShellIndex::<CosineDistance>::insert_batch(self, to_insert);
+            },
             _ => return Err(RecordError::IndexingTypeNotFound(self.indexing_type.clone())),
         }
         
@@ -53,6 +59,7 @@ impl CollectionTrait for Collection{
     fn query(&self, query_vector: Vec<f32>) -> Result<Option<(String, f32)>, RecordError>{
         let res = match self.indexing_type.to_uppercase().as_str() {
             "HNSW" => HnswIndex::<CosineDistance>::search(self, &query_vector)?,
+            "SHELL" => ShellIndex::<CosineDistance>::search(self, &query_vector)?,
             _ => return Err(RecordError::IndexingTypeNotFound(self.indexing_type.clone())),
         };
         Ok(res)
@@ -222,6 +229,54 @@ mod tests {
         println!("   Average insert time: {:?}", duration_insert / num_vectors as u32);
 
         println!("\n[+] Running queries on 1M dataset...");
+        let num_queries = 100;
+        let mut total_search_time = std::time::Duration::new(0, 0);
+
+        for _ in 0..num_queries {
+            let mut query = Vec::with_capacity(dim);
+            for _ in 0..dim {
+                query.push(rng.gen_range(-1.0..1.0));
+            }
+
+            let start_search = Instant::now();
+            let _result = collection.query(query).unwrap();
+            total_search_time += start_search.elapsed();
+        }
+
+        println!("[+] Executed {} queries.", num_queries);
+        println!("   Average search time: {:?}", total_search_time / num_queries as u32);
+    }
+
+    #[test]
+    fn test_shell_benchmark() {
+        println!(" Starting Shell Index Vector DB benchmark...");
+
+        let mut engine = Engine::new("benchmark_shell_db");
+        engine.create_collection("vectors", Some("SHELL")).unwrap();
+        let collection = engine.get_collection_mut("vectors").unwrap();
+
+        let num_vectors = 100_000;
+        let dim = 763;
+        let mut rng = rand::thread_rng();
+
+        println!("Generating and inserting {} random vectors ({} dimensions)...", num_vectors, dim);
+        
+        let mut batch = Vec::with_capacity(num_vectors);
+        for i in 0..num_vectors {
+            let mut vector = Vec::with_capacity(dim);
+            for _ in 0..dim {
+                vector.push(rng.gen_range(-1.0..1.0));
+            }
+            batch.push((format!("vec_{}", i), vector, None));
+        }
+        
+        let start_insert = Instant::now();
+        collection.insert_batch(batch).unwrap();
+        let duration_insert = start_insert.elapsed();
+        println!("[+] Finished inserting {} vectors in {:?}", num_vectors, duration_insert);
+        println!("   Average insert time: {:?}", duration_insert / num_vectors as u32);
+
+        println!("\n[+] Running queries...");
         let num_queries = 100;
         let mut total_search_time = std::time::Duration::new(0, 0);
 
