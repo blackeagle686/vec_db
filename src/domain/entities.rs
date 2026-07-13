@@ -237,3 +237,48 @@ impl <M: DistanceMetric> IndexTrait<M> for Index<M> {
     }
 }
 
+// ------------------------------ AGENT MEMORY (BRAIN NODE) ------------------------------
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum NodeType {
+    Entity,
+    Experience,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct BrainNode {
+    pub id: String,
+    pub node_type: NodeType,
+    pub timestamp: i64, 
+    pub text_embedding: Option<Vec<f32>>,
+    pub image_embedding: Option<Vec<f32>>,
+    pub audio_embedding: Option<Vec<f32>>,
+    pub metadata: Option<HashMap<String, String>>,
+    pub connected_nodes: Vec<String>, // Edges (pointers) to other BrainNodes
+}
+
+impl BrainNode {
+    pub fn new(
+        id: String, 
+        node_type: NodeType, 
+        timestamp: i64, 
+        metadata: Option<HashMap<String, String>>
+    ) -> Self {
+        BrainNode {
+            id,
+            node_type,
+            timestamp,
+            text_embedding: None,
+            image_embedding: None,
+            audio_embedding: None,
+            metadata,
+            connected_nodes: Vec::new(),
+        }
+    }
+
+    pub fn add_connection(&mut self, node_id: String) {
+        if !self.connected_nodes.contains(&node_id) {
+            self.connected_nodes.push(node_id);
+        }
+    }
+}
