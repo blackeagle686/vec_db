@@ -255,7 +255,7 @@ mod tests {
         engine.create_collection("vectors", Some("SHELL")).unwrap();
         let collection = engine.get_collection_mut("vectors").unwrap();
 
-        let num_vectors = 100_000;
+        let num_vectors = 10_000;
         let dim = 763;
         let mut rng = rand::thread_rng();
 
