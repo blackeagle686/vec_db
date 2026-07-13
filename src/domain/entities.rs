@@ -122,6 +122,7 @@ pub struct Collection {
     pub max_layer: usize,
     pub next_id: usize,
     pub indexing_type: String,
+    pub shells: HashMap<i32, Vec<usize>>,
 }
 
 pub trait CollectionTrait {
@@ -144,6 +145,7 @@ impl Collection {
             max_layer: 0,
             next_id: 0,
             indexing_type: indexing_type.to_string(),
+            shells: HashMap::new(),
         }
     }
 }
