@@ -77,5 +77,5 @@ Tested with `ef_construction=100`, `M=16`, and `ef_search=50` (using `target-cpu
 - **Logarithmic Search Magic**: 100 queries executed in **~327ms** (avg **3.27ms** per query). Despite the dataset being 10x larger, the search time stayed identical due to the $O(\log N)$ HNSW graph traversal!
 
 ##  License
-<img src="phx-vector.png" alt="Phoenix Vector Logo" width="500" style="margin-bottom: 20px;" />
+<img src="phx-vector.png" alt="Phoenix Vector Logo" width="100%" style="margin-bottom: 20px;" />
 This project is licensed under the MIT License.
