@@ -4,7 +4,6 @@
   Phoenix-Vector
 </h1>
 
-<img src="phx-vector.png" alt="Phoenix Vector Logo" width="500" style="margin-bottom: 20px;" />
 
 **A Multi-Threaded Vector Database Engine in Pure Rust.**
 
@@ -77,17 +76,6 @@ Tested with `ef_construction=100`, `M=16`, and `ef_search=50` (using `target-cpu
 - **Extreme Scale Insertion**: 1,000,000 vectors generated in-memory and graph-linked in **~18.8 minutes** (avg **1.13ms** per vector) across CPU cores.
 - **Logarithmic Search Magic**: 100 queries executed in **~327ms** (avg **3.27ms** per query). Despite the dataset being 10x larger, the search time stayed identical due to the $O(\log N)$ HNSW graph traversal!
 
-##  Development Roadmap
-
-- **[COMPLETED] Phase 1: Foundation**: Core structs, static distance metrics, HNSW index foundation, custom error handling.
-- **[COMPLETED] Phase 2: Persistence**: Disk persistence via `serde` and `bincode`.
-- **[COMPLETED] Phase 3: Performance Optimization**: Refactored internal graph traversal to use sequential integer mapping and contiguous memory `Vec<Record>`.
-- **[COMPLETED] Phase 4: Concurrency & API**: Wrapping the engine in `Arc<RwLock>` and exposing async HTTP endpoints using `tokio` and `axum`.
-- **[COMPLETED] Phase 5: Parallel Construction**: Implementing `rayon` and `RwLock` primitives for highly parallel batch processing.
-- **[COMPLETED] Phase 6: Document Ingestion Layer**: Built a native file parser (PDF, DOCX, XLSX, TXT) and text chunking pipeline.
-- **[IN PROGRESS] Phase 7: Embedding Connectors**: Building the `reqwest` integration for OpenAI/Ollama and `fastembed` for local ONNX execution.
-- **[PLANNED] Phase 8: Scalar Quantization**: Implementing vector compression to reduce memory footprint by 75% and dramatically increase math throughput.
-
 ##  License
-
+<img src="phx-vector.png" alt="Phoenix Vector Logo" width="500" style="margin-bottom: 20px;" />
 This project is licensed under the MIT License.
